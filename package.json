@@ -1,4 +1,5 @@
 {
+  "name": "message-app-challenge",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -18,5 +19,7 @@
   "engines": {
     "node": ">=18"
   },
-  "name": "message-app-challenge"
+  "resolutions": {
+    "react-refresh": "~0.14.0"
+  }
 }
