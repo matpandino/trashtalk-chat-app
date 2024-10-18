@@ -1,23 +1,22 @@
 import { WebSocket } from "@fastify/websocket";
 
-export interface Message {
-    id: string;
-    sentBy: {
-        id: string;
-        username: string;
-    } | null;
+export enum Event {
+    JOIN_ROOM = 'join_room',
+    LEAVE_ROOM = 'leave_room',
+    MESSAGE = 'message',
+}
+
+export interface MessageDTO {
+    event: Event;
     message: string;
-    createdAt: string;
+    roomId: string;
+    user: {
+        id: string;
+        name: string;
+    } | null;
 }
 
-export interface ChatClient {
-    id: string;
-    username: string;
-    socket: WebSocket;
-}
-
-export interface ChatRoom {
-    id: string;
-    clients: ChatClient[];
-    messages: Message[]
+export interface UserSockets {
+    userId: string;
+    sockets: WebSocket[];
 }
