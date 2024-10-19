@@ -10,7 +10,7 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query"; // Updated import
-import { Redirect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useUserStore } from "../utils/providers/user-store-provider";
 
 const schema = z.object({
@@ -50,10 +50,6 @@ export default function Page() {
   const onSubmit: SubmitHandler<FormData> = (data) => {
     mutation.mutate(data);
   };
-
-  if(userStore.user){
-    return <Redirect href={"/chatting/"}/>
-  }
 
   return (
     <View style={styles.container}>

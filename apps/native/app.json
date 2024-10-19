@@ -32,6 +32,9 @@
     "plugins": [
       "expo-router"
     ],
+    "experiments": {
+      "typedRoutes": true
+    },
     "scheme": "chat-app"
   }
 }
