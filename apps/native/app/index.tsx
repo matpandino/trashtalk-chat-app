@@ -12,12 +12,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query"; // Updated import
 import { Redirect, useRouter } from "expo-router";
 import { useUserStore } from "../utils/providers/user-store-provider";
+import apiClient from "../utils/axios";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
 });
 
 type FormData = z.infer<typeof schema>;
+
+type CreateUserResponse = {
+  id: string;
+  name: string;
+};
 
 export default function Page() {
   const {
@@ -28,22 +34,20 @@ export default function Page() {
     resolver: zodResolver(schema),
   });
 
-  const userStore = useUserStore(state => state);
-  const router = useRouter()
+  const userStore = useUserStore((state) => state);
+  const router = useRouter();
 
   const mutation = useMutation({
     mutationFn: (data: FormData) => {
       console.log(data);
-      return Promise.resolve(data);
+      return apiClient.post<CreateUserResponse>("/users", data);
     },
-    onSuccess: (data) => {
-      userStore.setUser({ id: "1", name: data.name });
-      console.log("success");
+    onSuccess: ({ data }) => {
+      userStore.setUser({ id: data.id, name: data.name });
       router.push("/chatting/");
     },
     onError: (error) => {
-      console.log("error");
-      console.error(error);
+      console.error('Error creating user', error);
     },
   });
 
@@ -51,8 +55,8 @@ export default function Page() {
     mutation.mutate(data);
   };
 
-  if(userStore.user){
-    return <Redirect href={"/chatting/"}/>
+  if (userStore.user) {
+    return <Redirect href={"/chatting/"} />;
   }
 
   return (
