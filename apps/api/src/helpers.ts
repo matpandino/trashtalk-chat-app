@@ -1,5 +1,5 @@
 import { WebSocket } from "@fastify/websocket";
-import { EventType, UserOnlineEvent, UserSockets } from "./types";
+import { EventType, NewRoomEvent, RoomsListEvent, UserListEvent, UserOnlineEvent, UserSockets } from "./types";
 import { prisma } from "./index";
 import { FastifyRequest } from "fastify";
 
@@ -15,7 +15,27 @@ export const getUserById = (userId: string) => {
     return prisma.user.findUnique({ where: { id: userId } });
 };
 
-export const getOrCreateChatRoomByUsersId = async (users: string[]) => {
+export const getAndNotifyRoomsList = async ({ usersSockets, userId }: { usersSockets: UserSockets[], userId: string }) => {
+    const userRooms = await prisma.chatRoom.findMany({
+        include: {
+            messages: true,
+            users: true
+        },
+        where: {
+            users: {
+                some: {
+                    id: userId
+                }
+            }
+        }
+    });
+
+    const event: RoomsListEvent = { event: EventType.ROOMS_LIST, rooms: userRooms };
+    sendEvent({ event, sockets: usersSockets.flatMap(u => u.sockets) });
+}
+
+
+export const getOrCreateChatRoomByUsersId = async ({ usersSockets, users }: { users: string[], usersSockets: UserSockets[] }) => {
     const validatedUsers = await prisma.user.findMany({
         where: {
             id: { in: users },
@@ -47,6 +67,10 @@ export const getOrCreateChatRoomByUsersId = async (users: string[]) => {
         },
         select: { id: true, messages: true, users: true },
     });
+    const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
+    const newRoomUserIds = newRoom.users.flatMap(u => u.id);
+    const roomUserSockets = usersSockets.filter(u => newRoomUserIds.includes(u.userId)).flatMap(u => u.sockets);
+    sendEvent({ event: newEvent, sockets: roomUserSockets });
     return newRoom;
 }
 
@@ -71,7 +95,7 @@ export const addSocketToUser = ({ socket, userId, usersSockets }: { userId: stri
     return usersSockets
 }
 
-export const getUserListWithOnlineStatus = async ({ userId, usersSockets }: { userId: string, usersSockets: UserSockets[] }) => {
+export const getAndNotifyUsersList = async ({ userId, usersSockets }: { userId: string, usersSockets: UserSockets[] }) => {
     const allUsers = await prisma.user.findMany({
         select: {
             id: true,
@@ -84,8 +108,9 @@ export const getUserListWithOnlineStatus = async ({ userId, usersSockets }: { us
         }
     });
 
-    const allUsersWithOnlineStatus = allUsers.map(u => ({ ...u, online: usersSockets.filter(us => us.userId === u.id).length > 0 }));
-    return allUsersWithOnlineStatus
+    const usersListWithOnlineStatus = allUsers.map(u => ({ ...u, online: usersSockets.filter(us => us.userId === u.id).length > 0 }));
+    const event: UserListEvent = { event: EventType.USER_LIST, users: usersListWithOnlineStatus };
+    sendEvent({ event, sockets: usersSockets.flatMap(u => u.sockets) });
 }
 
 export const validateNewSocketConnection = async ({ req, socket, usersSockets }: { socket: WebSocket, req: FastifyRequest, usersSockets: UserSockets[] }) => {

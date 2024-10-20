@@ -2,7 +2,7 @@ import fastify from 'fastify';
 import websocketPlugin, { WebSocket } from '@fastify/websocket';
 import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, UserListEvent, UserOfflineEvent, UserSockets } from './types'
 import { PrismaClient } from '@prisma/client';
-import { getOrCreateChatRoomByUsersId, getUserListWithOnlineStatus, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
+import { getAndNotifyRoomsList, getAndNotifyUsersList, getOrCreateChatRoomByUsersId, getUserListWithOnlineStatus, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
 
 const port = 8080;
 let usersSockets: UserSockets[] = []
@@ -23,15 +23,33 @@ server.post('/users', async (request, reply) => {
   return reply.status(201).send(newUser);
 });
 
+// Get room info route
+server.get('/rooms/:id', async (request, reply) => {
+  const { id } = request.params as { id: string };
+  const { token } = request.headers as { token: string };
+  if (!token) return reply.status(400).send({ error: 'Invalid user token' });
+  if (!id) return reply.status(400).send({ error: 'Invalid room ID' });
+
+  const room = await prisma.chatRoom.findUnique({
+    where: { id }, include: {
+      messages: true,
+      users: true
+    }
+  });
+  if (!room?.users.map(u => u.id).includes(token)) return reply.status(401).send({ error: 'User is not authorized to access this room' });
+  if (!room) return reply.status(404).send({ error: 'Room not found' });
+  return reply.status(200).send(room);
+});
+
 // WebSocket
 server.register(async function (server) {
   server.get('/chat', { websocket: true }, async (socket, req) => {
     try {
       const { user, newUserSockets } = await validateNewSocketConnection({ req, socket, usersSockets });
       usersSockets = newUserSockets;
-      const userList = await getUserListWithOnlineStatus({ userId: user.id, usersSockets });
-      const event: UserListEvent = { event: EventType.USER_LIST, users: userList };
-      socket.send(JSON.stringify(event));
+
+      getAndNotifyUsersList({ userId: user.id, usersSockets });
+      getAndNotifyRoomsList({ userId: user.id, usersSockets });
 
       socket.on('message', async message => {
         try {
@@ -40,12 +58,11 @@ server.register(async function (server) {
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
               if (!messageEvent?.userId) return socket.send(JSON.stringify({ error: 'Invalid userId' }));
-              let room = await getOrCreateChatRoomByUsersId([messageEvent.userId, user.id]);
+              let room = await getOrCreateChatRoomByUsersId({ users: [messageEvent.userId, user.id], usersSockets });
               if (!room) {
                 socket.send(JSON.stringify({ error: 'Room not found' }));
                 return
               }
-              console.log("messageEvent.data",messageEvent)
               const createdMessage = await prisma.message.create({
                 data: {
                   data: messageEvent.data,
@@ -82,7 +99,6 @@ server.register(async function (server) {
             const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
             sendEvent({ event, sockets: allSockets });
           }
-          console.log(`LOG: User ${user.name} lost connection`)
           const newUserSockets = removeUserSocket({ socket, userId: user.id, usersSockets })
           usersSockets = newUserSockets;
         }
