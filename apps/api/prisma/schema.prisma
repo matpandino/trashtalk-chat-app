@@ -25,7 +25,6 @@ model ChatRoom {
 
 model Message {
   id        String   @id @default(cuid())
-  event     String // Store event as string (enum handling in application)
   data      String
   createdAt DateTime @default(now())
   roomId    String

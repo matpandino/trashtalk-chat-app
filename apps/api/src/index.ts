@@ -45,10 +45,10 @@ server.register(async function (server) {
                 socket.send(JSON.stringify({ error: 'Room not found' }));
                 return
               }
+              console.log("messageEvent.data",messageEvent)
               const createdMessage = await prisma.message.create({
                 data: {
-                  event: messageParsed.event,
-                  data: messageParsed.message,
+                  data: messageEvent.data,
                   roomId: room.id,
                   sentById: user.id,
                 },
@@ -59,6 +59,7 @@ server.register(async function (server) {
                 usersSockets.filter(us => us.userId === u.id).flatMap(us => us.sockets)
               );
               const event: MessageEvent = { event: EventType.MESSAGE, message: createdMessage };
+              
               sendEvent({ event, sockets: roomSockets });
               break;
             default:
@@ -66,6 +67,7 @@ server.register(async function (server) {
               break;
           }
         } catch (error: any) {
+          console.error(error)
           socket.send(JSON.stringify({ error: error?.message }));
           return
         }
@@ -85,8 +87,9 @@ server.register(async function (server) {
           usersSockets = newUserSockets;
         }
       });
-    } catch (error) {
-      console.error("error", error)
+    } catch (error: any) {
+      socket.send(JSON.stringify({ error: error?.message }));
+      return
     }
   });
 });

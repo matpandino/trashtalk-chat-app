@@ -38,7 +38,7 @@ export interface UserOfflineEvent {
 
 export interface MessageEvent {
     event: EventType.MESSAGE;
-    message: Partial<Message>;
+    message: Message;
 }
 
 export interface UserListEvent {
