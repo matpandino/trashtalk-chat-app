@@ -39,7 +39,6 @@ export default function Page() {
 
   const mutation = useMutation({
     mutationFn: (data: FormData) => {
-      console.log(data);
       return apiClient.post<CreateUserResponse>("/users", data);
     },
     onSuccess: ({ data }) => {
