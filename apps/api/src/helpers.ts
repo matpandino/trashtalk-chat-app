@@ -1,5 +1,5 @@
 import { WebSocket } from "@fastify/websocket";
-import { Event, EventType, UserOnlineEvent, UserSockets } from "./types";
+import { EventType, UserOnlineEvent, UserSockets } from "./types";
 import { prisma } from "./index";
 import { FastifyRequest } from "fastify";
 
@@ -89,7 +89,7 @@ export const getUserListWithOnlineStatus = async ({ userId, usersSockets }: { us
 }
 
 export const validateNewSocketConnection = async ({ req, socket, usersSockets }: { socket: WebSocket, req: FastifyRequest, usersSockets: UserSockets[] }) => {
-    const { token } = req.headers as { token: string };
+    const token = req.headers?.token || req.query?.token
     if (!token) {
         socket.send(JSON.stringify({ error: 'Unauthorized' }));
         socket.close();
