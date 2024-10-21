@@ -83,7 +83,7 @@ export default function Page() {
     <Container style={styles.container}>
       <View style={styles.titleContainer}>
         <Text variant="displaySmall" style={styles.title}>
-          TrashTak
+          TrashTalk
         </Text>
       </View>
       <Controller
