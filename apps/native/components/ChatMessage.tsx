@@ -30,8 +30,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   const appTheme = useAppTheme();
 
-  const messageMarginSpace = 60;
-
   return (
     <DoubleTouchableOpacity
       onDoublePress={() => handleMessageLikeToggle(item.id)}
@@ -41,8 +39,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         style={[
           styles.messageContainer,
           {
-            marginLeft: isSentByCurrentUser ? messageMarginSpace : 0,
-            marginRight: isSentByCurrentUser ? 0 : messageMarginSpace,
+            width: "auto",
+            justifyContent: "flex-end",
+            marginLeft: isSentByCurrentUser ? "auto" : 0,
+            marginRight: isSentByCurrentUser ? 0 : "auto",
             borderBottomRightRadius: isSentByCurrentUser ? 0 : 16,
             borderBottomLeftRadius: isSentByCurrentUser ? 16 : 0,
             marginBottom: spacePrevMessage ? 8 : 0,
@@ -62,27 +62,27 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         )}
 
         <Text>{item.data}</Text>
+        {item.likes?.map((like, index) => (
+          <View
+            key={like.id}
+            style={[
+              styles.likeIconContainer,
+              isSentByCurrentUser
+                ? { left: -10 - index * 12 }
+                : { right: -10 - index * 12 },
+            ]}
+          >
+            <Icon
+              size={20}
+              source="heart"
+              color={darken(
+                like.userId === currentUser?.id ? 0 : 0.2,
+                appTheme.colors.red
+              )}
+            />
+          </View>
+        ))}
       </View>
-      {item.likes?.map((like, index) => (
-        <View
-          key={like.id}
-          style={[
-            styles.likeIconContainer,
-            isSentByCurrentUser
-              ? { left: messageMarginSpace - 10 - index * 12 }
-              : { right: messageMarginSpace - 10 - index * 12 },
-          ]}
-        >
-          <Icon
-            size={20}
-            source="heart"
-            color={darken(
-              like.userId === currentUser?.id ? 0 : 0.2,
-              appTheme.colors.red
-            )}
-          />
-        </View>
-      ))}
     </DoubleTouchableOpacity>
   );
 };
@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 200,
     marginVertical: 6,
-    width: "100%",
+    minWidth: "70%",
   },
 });
