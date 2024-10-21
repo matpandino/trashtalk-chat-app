@@ -1,15 +1,15 @@
-import React from "react";
+import React from "react";  
 import { StyleSheet, View } from "react-native";
 import { FlatList } from "react-native";
 import { useRouter, Stack } from "expo-router";
-import { useChattingStore } from "../../utils/providers/chatting-store-provider";
-import { Container } from "../../components/Container";
-import { ChatListItem } from "../../components/ChatListItem";
+import { useChattingStore } from "@/utils/providers/chatting-store-provider";
+import { Container } from "@/components/Container";
+import { ChatListItem } from "@/components/ChatListItem";
 import { Appbar, Chip, Text } from "react-native-paper";
-import { useUserStore } from "../../utils/providers/user-store-provider";
-import { Separator } from "../../components/Separator";
-import { appTheme } from "../../utils/theme";
-import apiClient from "../../utils/axios";
+import { useUserStore } from "@/utils/providers/user-store-provider";
+import { Separator } from "@/components/Separator";
+import { appTheme } from "@/utils/theme";
+import apiClient from "@/utils/axios";
 import { darken, transparentize } from "polished";
 
 export default function Page() {

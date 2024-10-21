@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput as PaperTextInput } from "react-native-paper";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 
 interface CustomTextInputProps
   extends React.ComponentProps<typeof PaperTextInput> {}

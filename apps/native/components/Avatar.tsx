@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Avatar as PaperAvatar, Portal, useTheme } from "react-native-paper";
-import { useAppTheme } from "../utils/theme";
+import { Avatar as PaperAvatar } from "react-native-paper";
+import { useAppTheme } from "@/utils/theme";
 
 interface AvatarProps extends React.ComponentProps<typeof PaperAvatar.Text> {
   isOnline: boolean;

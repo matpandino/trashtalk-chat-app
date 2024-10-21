@@ -1,7 +1,7 @@
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import React from "react";
 import { Appbar, Text } from "react-native-paper";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 
 interface HeaderProps extends NativeStackHeaderProps {}
 

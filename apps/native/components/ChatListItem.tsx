@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 import { UserAvatarStatus } from "./UserAvatarStatus";
 
 interface ChatListItemProps extends React.ComponentProps<typeof View> {

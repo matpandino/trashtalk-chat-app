@@ -5,12 +5,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
-import { useUserStore } from "../utils/providers/user-store-provider";
-import apiClient from "../utils/axios";
-import { Container } from "../components/Container";
-import { TextInput } from "../components/TextInput";
+import { useUserStore } from "@/providers/user-store-provider";
+import apiClient from "@/utils/axios";
+import { Container } from "@/components/Container";
+import { TextInput } from "@/components/TextInput";
 import { Button, Text } from "react-native-paper";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 import { transparentize } from "polished";
 import axios from "axios";
 

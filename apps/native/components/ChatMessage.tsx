@@ -1,14 +1,11 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Message, User } from "../utils/stores/chatting-store";
+import { Message, User } from "@/utils/stores/chatting-store";
 import { DoubleTouchableOpacity } from "./DoubleTouchOpacity";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 import { Icon, Text } from "react-native-paper";
 import { darken } from "polished";
 import { Image } from "expo-image";
-
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 interface ChatMessageProps {
   item: Message;

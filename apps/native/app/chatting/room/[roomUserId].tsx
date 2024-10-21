@@ -1,21 +1,21 @@
 import { StyleSheet, View } from "react-native";
 import React, { useMemo } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useChattingStore } from "../../../utils/providers/chatting-store-provider";
+import { useChattingStore } from "@/utils/providers/chatting-store-provider";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUserStore } from "../../../utils/providers/user-store-provider";
+import { useUserStore } from "@/utils/providers/user-store-provider";
 import { FlatList } from "react-native";
-import { UserAvatarStatus } from "../../../components/UserAvatarStatus";
-import { Container } from "../../../components/Container";
-import { ChatTextInput } from "../../../components/ChatTextInput";
-import { ChatMessage } from "../../../components/ChatMessage";
+import { UserAvatarStatus } from "@/components/UserAvatarStatus";
+import { Container } from "@/components/Container";
+import { ChatTextInput } from "@/components/ChatTextInput";
+import { ChatMessage } from "@/components/ChatMessage";
 
 const schema = z.object({
   message: z.object({
     text: z.string().min(1, "Message is required"),
-    image: z.any().optional()
+    image: z.any().optional(),
   }),
 });
 
@@ -40,13 +40,17 @@ export default function Page() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: { message: { text: string, image?: string } }) => {
-    sendMessage({ roomId: roomId as string, message: data.message.text, image: data.message?.image });
+  const onSubmit = (data: { message: { text: string; image?: string } }) => {
+    sendMessage({
+      roomId: roomId as string,
+      message: data.message.text,
+      image: data.message?.image,
+    });
     reset({
       message: {
         text: "",
-        image: undefined
-      }
+        image: undefined,
+      },
     });
   };
 

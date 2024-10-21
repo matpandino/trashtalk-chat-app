@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { useAppTheme } from "../utils/theme";
+import { useAppTheme } from "@/utils/theme";
 
 export const Separator = () => {
   const appTheme = useAppTheme();
