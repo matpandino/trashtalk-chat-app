@@ -16,10 +16,6 @@ This monorepo is managed using [Turborepo](https://turbo.build/), which helps in
 
 The API is built with [Fastify](https://www.fastify.io/) and uses [Prisma](https://www.prisma.io/) for database management, with a file-based [SQLite](https://sqlite.org/) database.
 
-- Fastify handles HTTP requests.
-- Prisma manages the SQLite database.
-- WebSocket enables real-time communication.
-
 ### `apps/app`
 
 The mobile app is built using [Expo](https://expo.dev/) and uses [Expo Router](https://expo.github.io/router/) for navigation.
