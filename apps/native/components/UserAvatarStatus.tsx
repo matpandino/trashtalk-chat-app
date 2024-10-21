@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import Avatar from "./Avatar";
 
-interface UserAvatarStatusProps {
+interface ChatHeaderTitleProps {
   title: string;
   isOnline: boolean;
   centralize?: boolean;

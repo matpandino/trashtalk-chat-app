@@ -6,7 +6,7 @@ import { transparentize } from "polished";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 
-interface ChatTextInputProps extends React.ComponentProps<typeof TextInput> {
+interface ChatTextInputProps {
   handleSubmit: () => void;
   canSubmit: boolean;
   value?: {
