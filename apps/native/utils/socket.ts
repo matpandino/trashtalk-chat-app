@@ -11,10 +11,11 @@ let ws: any = null;
 //   }, RECONNECT_DELAY);
 // };
 
-export const connectWebSocket = (token: string, onMessage: (event: ServerEvent) => void) => {
+export const connectWebSocket = (token: string, statusChange: (newStatus:'online' | 'offline') => void, onMessage: (event: ServerEvent) => void) => {
     ws = new WebSocket('ws://localhost:8080/chat?token=' + token);
 
     ws.onopen = () => {
+        statusChange('online')
         console.log('Connected to WebSocket server');
     };
 
@@ -36,6 +37,7 @@ export const connectWebSocket = (token: string, onMessage: (event: ServerEvent) 
     };
 
     ws.onclose = () => {
+        statusChange('offline')
         console.log('WebSocket connection closed');
         // reconnectWebSocket(token, onMessage); 
     };

@@ -26,6 +26,7 @@ interface Room {
 interface ChattingStoreState {
   users: Users[];
   rooms: Room[];
+  status: 'online' | 'offline'
 }
 
 interface ChattingStoreActions {
@@ -39,6 +40,7 @@ export interface ChattingStore extends ChattingStoreState, ChattingStoreActions 
 export const defaultInitState: ChattingStoreState = {
   rooms: [],
   users: [],
+  status: 'offline'
 }
 
 export const createChattingStore = (
@@ -47,14 +49,13 @@ export const createChattingStore = (
   return createStore<ChattingStore>()((set) => ({
     ...initState,
     sendMessage: (newMessageDTO) => {
-      console.log("newMessageDTO",newMessageDTO)
+      console.log("newMessageDTO", newMessageDTO)
       const { roomId, message } = newMessageDTO;
       sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message } as ClientEventSentMessage);
     },
     updateRoom: (newRoomData) => {
       set(state => {
         const roomExists = state.rooms.find(room => room.id === newRoomData.id);
-        console.log(".. roomExists ",roomExists)
         if (roomExists) {
           return { ...state, rooms: state.rooms.map(room => room.id === newRoomData.id ? newRoomData : room) };
         } else {
@@ -64,7 +65,9 @@ export const createChattingStore = (
     },
     initializeSocket: (token) => {
       set(state => defaultInitState)
-      connectWebSocket(token, (serverEvent) => {
+      connectWebSocket(token, (statusChange) => {
+        set(state => ({ ...state, status: statusChange }))
+      }, (serverEvent) => {
         const eventType = serverEvent.event
         const currentUserId = token
         switch (eventType) {
