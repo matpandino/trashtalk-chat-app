@@ -1,6 +1,6 @@
 # TrashLab Mobile Challenge
 
-Video demonstration: https://youtu.be/SmTXhhTYMT4
+Video demonstration: [https://youtu.be/SmTXhhTYMT4](https://youtu.be/oiEtJt-uRSU)
 
 
 ### Notes 
