@@ -12,7 +12,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
 - **TRPC**: I've noticed middle project that if I used trpc to integrate api/frontend it would probably speed the procces of building this challenge
 
-*APP*
+*Mobile App*
 - **Componentization**: Some components on the App still need to be refactored for better reusability.
 - **Websocket**: Websocket connection can be improved. Something like auto reconnection can be added. I've noticed possible bugs with the websocket instantiation.
 - **Storybook**: My intent was to add storybook + unit test when neeeded
@@ -31,7 +31,7 @@ This monorepo is managed using [Turborepo](https://turbo.build/), which helps in
 
 ```bash
 /apps
-  /app       # Main React Native application (Expo)
+  /native    # Main React Native application (Expo)
   /api       # Backend API server (Fastify + Prisma + SQLite + WebSocket)
 ````
 
@@ -39,7 +39,7 @@ This monorepo is managed using [Turborepo](https://turbo.build/), which helps in
 
 The API is built with [Fastify](https://www.fastify.io/) and uses [Prisma](https://www.prisma.io/) for database management, with a file-based [SQLite](https://sqlite.org/) database.
 
-### `apps/app`
+### `apps/native`
 
 The mobile app is built using [Expo](https://expo.dev/) and uses [Expo Router](https://expo.github.io/router/) for navigation.
 - Expo Router handles navigation.
