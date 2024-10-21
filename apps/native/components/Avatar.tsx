@@ -15,7 +15,7 @@ const Avatar: React.FC<AvatarProps> = ({ isOnline, ...props }) => {
       <View
         style={[
           styles.statusIndicator,
-          { backgroundColor: isOnline ? theme.colors.primary : theme.colors.red },
+          { backgroundColor: isOnline ? theme.colors.green : theme.colors.red },
         ]}
       />
     </View>
@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 6,
-    borderColor: "rgba(255, 255, 255, 0.5)",
     borderWidth: 1.5,
   },
 });

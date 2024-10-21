@@ -5,6 +5,7 @@ export const useAppTheme = () => useTheme<AppTheme>();
 
 const customColors = {
     red: "#f25757",
+    green: "#85f781",
     sentMessageBackground: "#dbcbff",
     receivedMessageBackground: "#e6e6e6",
     primaryLight: "#6b7496",
