@@ -7,6 +7,7 @@ Video demonstration: https://youtu.be/SmTXhhTYMT4
 
 Due to limited time, I had to cut some shortcuts that impacted code quality. Here are some areas where there is room for improvement:
 
+- **GIT**: To save time I started comitting to the master. This is not a good practice and should not be tolerated in serious projects. Usually I create a PR for each chore/feature/fix with a description of the change
 - **API Image Upload to S3**: Even though image uploading is working locally. It could directly upload to s3.
 - **Componentization**: Some components on the App still need to be refactored for better reusability.
 - **Login Token / Auth middleware**: Currently, the token only holds the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
