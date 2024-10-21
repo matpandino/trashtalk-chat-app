@@ -1,15 +1,6 @@
 import { ServerEvent } from "../../api/src/types";
 
 let ws: any = null;
-// let reconnectTimeout: NodeJS.Timeout | null = null; 
-// const RECONNECT_DELAY = 5000;
-
-// const reconnectWebSocket = (token: string, onMessage: (event: ServerEvent) => void) => {
-//   console.log("Attempting to reconnect...");
-//   reconnectTimeout = setTimeout(() => {
-//     connectWebSocket(token, onMessage);
-//   }, RECONNECT_DELAY);
-// };
 
 export const connectWebSocket = (token: string, statusChange: (newStatus:'online' | 'offline') => void, onMessage: (event: ServerEvent) => void) => {
     ws = new WebSocket('ws://localhost:8080/chat?token=' + token);
@@ -22,7 +13,6 @@ export const connectWebSocket = (token: string, statusChange: (newStatus:'online
     ws.onmessage = (event: any) => {
         try {
             const data = JSON.parse(event.data);
-            console.log("received data",data.event)
             if (data?.error) {
                 throw new Error(data.error);
             }
@@ -39,7 +29,6 @@ export const connectWebSocket = (token: string, statusChange: (newStatus:'online
     ws.onclose = () => {
         statusChange('offline')
         console.log('WebSocket connection closed');
-        // reconnectWebSocket(token, onMessage); 
     };
 };
 

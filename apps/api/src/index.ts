@@ -27,12 +27,16 @@ server.post('/users', async (request, reply) => {
 server.get('/users/:userId/room', async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const { token } = request.headers as { token: string };
+
   if (!token) return reply.status(400).send({ error: 'Invalid user token' });
   if (!userId) return reply.status(400).send({ error: 'Invalid user' });
+
   const currentUser = await prisma.user.findUnique({ where: { id: token } });
   if (!currentUser) return reply.status(401).send({ error: 'Invalid user token' });
+
   const userRoom = await prisma.user.findUnique({ where: { id: userId } });
   if (!userRoom) return reply.status(400).send({ error: 'Invalid user ID' });
+  
   const userIds = [userRoom.id, currentUser.id];
   const room = await prisma.chatRoom.findFirst({
     where: {
@@ -56,13 +60,9 @@ server.get('/users/:userId/room', async (request, reply) => {
       },
       select: { id: true, messages: true, users: true },
     });
-    console.log("currentUser", currentUser)
-    console.log("userRoom", userRoom)
-    console.log("newRoom", newRoom)
     const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
     const sockets = usersSockets.filter(u => userIds.includes(u.userId)).flatMap(us => us.sockets);
     sendEvent({ event: newEvent, sockets });
-    console.log(".....2")
     return reply.status(201).send(newRoom);
   }
   return reply.status(200).send(room);
@@ -121,7 +121,7 @@ server.register(async function (server) {
                 us => room.users.map(u => u.id).includes(us.userId)
               ).flatMap(us => us.sockets);
               const event: MessageEvent = { event: EventType.MESSAGE, message: createdMessage };
-              console.log("LOG: message sent event", event, 'sockets', roomSockets.length)
+              console.log("LOG: message sent event", event, 'sent to sockets (count): ', roomSockets.length)
               sendEvent({ event, sockets: roomSockets });
               break;
             default:

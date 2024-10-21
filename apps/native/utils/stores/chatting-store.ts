@@ -49,7 +49,6 @@ export const createChattingStore = (
   return createStore<ChattingStore>()((set) => ({
     ...initState,
     sendMessage: (newMessageDTO) => {
-      console.log("newMessageDTO", newMessageDTO)
       const { roomId, message } = newMessageDTO;
       sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message } as ClientEventSentMessage);
     },
@@ -72,8 +71,6 @@ export const createChattingStore = (
         const currentUserId = token
         switch (eventType) {
           case EventType.USER_ONLINE:
-            console.log("user ON: ", JSON.stringify(serverEvent, null, 2))
-
             if (serverEvent.user.id === currentUserId) return
             set(state => {
               const foundUser = state.users.find(user => user.id === serverEvent.user.id);
@@ -86,8 +83,6 @@ export const createChattingStore = (
             });
             break;
           case EventType.USER_OFFLINE:
-            console.log("user OFF: ", JSON.stringify(serverEvent, null, 2))
-
             if (serverEvent.user.id === currentUserId) return
             set(state => {
               const foundUser = state.users.find(user => user.id === serverEvent.user.id);
@@ -101,8 +96,6 @@ export const createChattingStore = (
             break;
           case EventType.MESSAGE:
             set(state => {
-              console.log(".....")
-              console.log("new message", JSON.stringify(serverEvent, null, 2))
               const existingRoom = state.rooms.find(room => room.id === serverEvent.message.roomId);
               if (existingRoom) {
                 const updatedRooms = state.rooms.map(room => {
