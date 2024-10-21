@@ -1,8 +1,8 @@
 import fastify from 'fastify';
 import websocketPlugin, { WebSocket } from '@fastify/websocket';
-import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, UserListEvent, UserOfflineEvent, UserSockets } from './types'
+import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserListEvent, UserOfflineEvent, UserSockets } from './types'
 import { PrismaClient } from '@prisma/client';
-import { getAndNotifyRoomsList, getAndNotifyUsersList, getOrCreateChatRoomByUsersId, getUserListWithOnlineStatus, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
+import { getAndNotifyRoomsList, getAndNotifyUsersList, getChatRoomById, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
 
 const port = 8080;
 let usersSockets: UserSockets[] = []
@@ -22,6 +22,55 @@ server.post('/users', async (request, reply) => {
 
   return reply.status(201).send(newUser);
 });
+
+// Create User route
+server.get('/users/:userId/room', async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const { token } = request.headers as { token: string };
+  if (!token) return reply.status(400).send({ error: 'Invalid user token' });
+  if (!userId) return reply.status(400).send({ error: 'Invalid user' });
+  const currentUser = await prisma.user.findUnique({ where: { id: token } });
+  if (!currentUser) return reply.status(401).send({ error: 'Invalid user token' });
+  const userRoom = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userRoom) return reply.status(400).send({ error: 'Invalid user ID' });
+  const userIds = [userRoom.id, currentUser.id];
+  const room = await prisma.chatRoom.findFirst({
+    where: {
+      users: {
+        every: {
+          id: { in: userIds }
+        }
+      }
+    },
+    include: {
+      messages: true,
+      users: true,
+    },
+  });
+  if (!room) {
+    const newRoom = await prisma.chatRoom.create({
+      data: {
+        users: {
+          connect: [userRoom, currentUser],
+        },
+      },
+      select: { id: true, messages: true, users: true },
+    });
+    console.log("currentUser", currentUser)
+    console.log("userRoom", userRoom)
+    console.log("newRoom", newRoom)
+    const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
+    const sockets = usersSockets.filter(u => userIds.includes(u.userId)).flatMap(us => us.sockets);
+    sendEvent({ event: newEvent, sockets });
+    console.log(".....2")
+    return reply.status(201).send(newRoom);
+  }
+  console.log(".....1")
+  console.log("... room", room)
+  console.log("... userIds", userIds)
+  return reply.status(200).send(room);
+});
+
 
 // Get room info route
 server.get('/rooms/:id', async (request, reply) => {
@@ -48,8 +97,7 @@ server.register(async function (server) {
       const { user, newUserSockets } = await validateNewSocketConnection({ req, socket, usersSockets });
       usersSockets = newUserSockets;
 
-      getAndNotifyUsersList({ userId: user.id, usersSockets });
-      getAndNotifyRoomsList({ userId: user.id, usersSockets });
+      getAndNotifyUsersList({ userId: user.id, notifySocket: socket, usersSockets });
 
       socket.on('message', async message => {
         try {
@@ -57,8 +105,13 @@ server.register(async function (server) {
           switch (messageParsed?.event) {
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
-              if (!messageEvent?.userId) return socket.send(JSON.stringify({ error: 'Invalid userId' }));
-              let room = await getOrCreateChatRoomByUsersId({ users: [messageEvent.userId, user.id], usersSockets });
+              console.log("----")
+              console.log("----")
+              console.log("---- messageEvent",messageEvent)
+              console.log("----")
+              console.log("----")
+              if (!messageEvent?.roomId) return socket.send(JSON.stringify({ error: 'Invalid roomId' }));
+              let room = await getChatRoomById({ chatRoomId: messageEvent.roomId});
               if (!room) {
                 socket.send(JSON.stringify({ error: 'Room not found' }));
                 return
@@ -72,11 +125,11 @@ server.register(async function (server) {
                 include: { room: true, sentBy: true }
               })
 
-              const roomSockets: WebSocket[] = room.users.flatMap(u =>
-                usersSockets.filter(us => us.userId === u.id).flatMap(us => us.sockets)
-              );
+              const roomSockets: WebSocket[] = usersSockets.filter(
+                us => room.users.map(u => u.id).includes(us.userId)
+              ).flatMap(us => us.sockets);
               const event: MessageEvent = { event: EventType.MESSAGE, message: createdMessage };
-              
+              console.log("LOG: message sent event", event, 'sockets', roomSockets.length)
               sendEvent({ event, sockets: roomSockets });
               break;
             default:
@@ -93,12 +146,10 @@ server.register(async function (server) {
       // Handle client disconnect
       socket.on('close', () => {
         if (user) {
-          const prevUserSockets = usersSockets.filter(us => us.userId === user.id);
-          if (prevUserSockets.length === 1) {
-            const allSockets = usersSockets.flatMap(us => us.sockets);
-            const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
-            sendEvent({ event, sockets: allSockets });
-          }
+          const allSockets = usersSockets.flatMap(us => us.sockets);
+          console.log(`LOG: ${user.name} is offline`);
+          const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
+          sendEvent({ event, sockets: allSockets });
           const newUserSockets = removeUserSocket({ socket, userId: user.id, usersSockets })
           usersSockets = newUserSockets;
         }

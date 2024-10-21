@@ -1,9 +1,9 @@
 import { WebSocket } from "@fastify/websocket";
-import { EventType, NewRoomEvent, RoomsListEvent, UserListEvent, UserOnlineEvent, UserSockets } from "./types";
+import { EventType, NewRoomEvent, RoomsListEvent, ServerEvent, UserListEvent, UserOnlineEvent, UserSockets } from "./types";
 import { prisma } from "./index";
 import { FastifyRequest } from "fastify";
 
-export const sendEvent = ({ event, sockets }: { sockets: WebSocket[], event: Event }) => {
+export const sendEvent = ({ event, sockets }: { sockets: WebSocket[], event: ServerEvent }) => {
     sockets.forEach(socket => {
         if (socket) {
             socket.send(JSON.stringify(event))
@@ -15,11 +15,11 @@ export const getUserById = (userId: string) => {
     return prisma.user.findUnique({ where: { id: userId } });
 };
 
-export const getAndNotifyRoomsList = async ({ usersSockets, userId }: { usersSockets: UserSockets[], userId: string }) => {
+export const getAndNotifyRoomsList = async ({ notifySockets, userId }: { notifySockets: WebSocket[], userId: string }) => {
     const userRooms = await prisma.chatRoom.findMany({
         include: {
-            messages: true,
-            users: true
+            users: true,
+            messages: true
         },
         where: {
             users: {
@@ -31,54 +31,26 @@ export const getAndNotifyRoomsList = async ({ usersSockets, userId }: { usersSoc
     });
 
     const event: RoomsListEvent = { event: EventType.ROOMS_LIST, rooms: userRooms };
-    sendEvent({ event, sockets: usersSockets.flatMap(u => u.sockets) });
+    sendEvent({ event, sockets: notifySockets });
 }
 
-
-export const getOrCreateChatRoomByUsersId = async ({ usersSockets, users }: { users: string[], usersSockets: UserSockets[] }) => {
-    const validatedUsers = await prisma.user.findMany({
-        where: {
-            id: { in: users },
-        },
-        select: { id: true }
+export const getChatRoomById = async ({ chatRoomId }: { chatRoomId: string }) => {
+    const room = await prisma.chatRoom.findUnique({
+        where: { id: chatRoomId },
+        select: { id: true, users: true, messages: true }
     });
+    if (!room) throw new Error('Room not found');
 
-    if (users.length !== validatedUsers.length) {
-        throw new Error('Invalid users. Could not create room.');
-    }
-
-    const room = await prisma.chatRoom.findFirst({
-        where: {
-            users: {
-                every: {
-                    id: { in: users },
-                }
-            }
-        }, select: { id: true, users: true, messages: true }
-    });
-    if (room) {
-        return room;
-    }
-    const newRoom = await prisma.chatRoom.create({
-        data: {
-            users: {
-                connect: validatedUsers
-            },
-        },
-        select: { id: true, messages: true, users: true },
-    });
-    const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
-    const newRoomUserIds = newRoom.users.flatMap(u => u.id);
-    const roomUserSockets = usersSockets.filter(u => newRoomUserIds.includes(u.userId)).flatMap(u => u.sockets);
-    sendEvent({ event: newEvent, sockets: roomUserSockets });
-    return newRoom;
+    return room;
 }
-
 
 export const removeUserSocket = ({ socket, userId, usersSockets }: { userId: string, socket: WebSocket, usersSockets: UserSockets[] }) => {
     return usersSockets.map(u => {
         if (u.userId === userId) {
-            u.sockets = u.sockets.filter(s => s !== socket);
+            return {
+                ...u,
+                sockets: [],
+            };
         }
         return u;
     });
@@ -95,8 +67,8 @@ export const addSocketToUser = ({ socket, userId, usersSockets }: { userId: stri
     return usersSockets
 }
 
-export const getAndNotifyUsersList = async ({ userId, usersSockets }: { userId: string, usersSockets: UserSockets[] }) => {
-    const allUsers = await prisma.user.findMany({
+export const getAndNotifyUsersList = async ({ userId, usersSockets, notifySocket }: { userId: string, usersSockets: UserSockets[], notifySocket: WebSocket }) => {
+    const allUsersExceptCurrent = await prisma.user.findMany({
         select: {
             id: true,
             name: true,
@@ -108,9 +80,35 @@ export const getAndNotifyUsersList = async ({ userId, usersSockets }: { userId: 
         }
     });
 
-    const usersListWithOnlineStatus = allUsers.map(u => ({ ...u, online: usersSockets.filter(us => us.userId === u.id).length > 0 }));
+    const userRooms = await prisma.chatRoom.findMany({
+        include: {
+            users: true
+        },
+        where: {
+            users: {
+                some: {
+                    id: userId
+                },
+            }
+        }
+    });
+
+    const usersListWithOnlineStatus = allUsersExceptCurrent.map(u => {
+        const roomWithUser = userRooms.find(room => {
+            const roomUsers = room.users.map(u => u.id);
+            return roomUsers.includes(u.id) && roomUsers.includes(userId)
+        })
+
+        return {
+            ...u,
+            roomId: roomWithUser?.id || null,
+            online: usersSockets.filter(us => us.userId === u.id).length > 0
+        }
+    }).sort((a, b) => {
+        return (b.online ? 1 : 0) - (a.online ? 1 : 0);
+    });
     const event: UserListEvent = { event: EventType.USER_LIST, users: usersListWithOnlineStatus };
-    sendEvent({ event, sockets: usersSockets.flatMap(u => u.sockets) });
+    sendEvent({ event, sockets: [notifySocket] });
 }
 
 export const validateNewSocketConnection = async ({ req, socket, usersSockets }: { socket: WebSocket, req: FastifyRequest, usersSockets: UserSockets[] }) => {
@@ -129,12 +127,9 @@ export const validateNewSocketConnection = async ({ req, socket, usersSockets }:
     const prevUserSockets = usersSockets.filter(us => us.userId === user.id);
     const newUserSockets = addSocketToUser({ socket, userId: user.id, usersSockets })
 
-    // Notify that user is online if didn't had a connection
-    if (prevUserSockets.length === 0) {
-        const allSockets = usersSockets.flatMap(us => us.sockets);
-        const event: UserOnlineEvent = { event: EventType.USER_ONLINE, user: { id: user.id, name: user.name } };
-        sendEvent({ event, sockets: allSockets });
-    }
+    const allSockets = usersSockets.filter(u => u.userId !== token).flatMap(us => us.sockets);
+    const event: UserOnlineEvent = { event: EventType.USER_ONLINE, user: { id: user.id, name: user.name } };
+    sendEvent({ event, sockets: allSockets });
     console.log(`LOG: ${user.name} is online`);
     return { user, newUserSockets }
 }

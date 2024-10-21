@@ -1,5 +1,5 @@
 import { WebSocket } from "@fastify/websocket";
-import { ChatRoom, Message, User } from '@prisma/client';
+import { Message, User } from '@prisma/client';
 
 // Client to server events
 export enum ClientEventType {
@@ -9,7 +9,7 @@ export enum ClientEventType {
 export interface ClientEventSentMessage {
     event: ClientEventType.NEW_MESSAGE;
     data: string;
-    userId: string;
+    roomId: string;
 }
 
 // Server to client events
@@ -66,6 +66,7 @@ export interface UserListEvent {
     users: {
         id: string;
         name: string;
+        roomId: string | null;
         online: boolean;
     }[];
 }
