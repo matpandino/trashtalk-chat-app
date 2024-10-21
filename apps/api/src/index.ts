@@ -1,8 +1,8 @@
 import fastify from 'fastify';
 import websocketPlugin, { WebSocket } from '@fastify/websocket';
-import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserListEvent, UserOfflineEvent, UserSockets } from './types'
+import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserOfflineEvent, UserSockets } from './types'
 import { PrismaClient } from '@prisma/client';
-import { getAndNotifyRoomsList, getAndNotifyUsersList, getChatRoomById, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
+import { getAndNotifyUsersList, getChatRoomById, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
 
 const port = 8080;
 let usersSockets: UserSockets[] = []
@@ -17,7 +17,7 @@ server.post('/users', async (request, reply) => {
   const { name } = request.body as { name: string };
   const userExists = await prisma.user.findUnique({ where: { name } });
 
-  if (userExists) return reply.status(400).send({ error: 'User already exists' });
+  if (userExists) return userExists
   const newUser = await prisma.user.create({ data: { name } });
 
   return reply.status(201).send(newUser);
@@ -65,9 +65,6 @@ server.get('/users/:userId/room', async (request, reply) => {
     console.log(".....2")
     return reply.status(201).send(newRoom);
   }
-  console.log(".....1")
-  console.log("... room", room)
-  console.log("... userIds", userIds)
   return reply.status(200).send(room);
 });
 
@@ -105,11 +102,6 @@ server.register(async function (server) {
           switch (messageParsed?.event) {
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
-              console.log("----")
-              console.log("----")
-              console.log("---- messageEvent",messageEvent)
-              console.log("----")
-              console.log("----")
               if (!messageEvent?.roomId) return socket.send(JSON.stringify({ error: 'Invalid roomId' }));
               let room = await getChatRoomById({ chatRoomId: messageEvent.roomId});
               if (!room) {
@@ -146,7 +138,7 @@ server.register(async function (server) {
       // Handle client disconnect
       socket.on('close', () => {
         if (user) {
-          const allSockets = usersSockets.flatMap(us => us.sockets);
+          const allSockets = usersSockets.filter(u=> u.userId !== user.id).flatMap(u => u.sockets);
           console.log(`LOG: ${user.name} is offline`);
           const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
           sendEvent({ event, sockets: allSockets });
