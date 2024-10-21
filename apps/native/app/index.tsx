@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +7,11 @@ import { useMutation } from "@tanstack/react-query"; // Updated import
 import { Redirect, useRouter } from "expo-router";
 import { useUserStore } from "../utils/providers/user-store-provider";
 import apiClient from "../utils/axios";
+import { Container } from "../components/Container";
+import { TextInput } from "../components/TextInput";
+import { Button, Text } from "react-native-paper";
+import { useAppTheme } from "../utils/theme";
+import { transparentize } from "polished";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -29,13 +28,15 @@ export default function Page() {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { isValid, errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const userStore = useUserStore((state) => state);
   const router = useRouter();
+  const appTheme = useAppTheme();
 
   const mutation = useMutation({
     mutationFn: (data: FormData) => {
@@ -46,7 +47,7 @@ export default function Page() {
       router.push("/chatting/");
     },
     onError: (error) => {
-      console.error('Error creating user', error);
+      setError("name", { message: "Failed to create user" });
     },
   });
 
@@ -59,48 +60,91 @@ export default function Page() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.main}>
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Enter your name"
-            />
-          )}
-        />
-        {errors.name && <Text style={styles.error}>{errors.name.message}</Text>}
-
-        <TouchableOpacity
-          style={styles.button}
+    <Container style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text variant="displaySmall" style={styles.title}>
+          TrashTak
+        </Text>
+      </View>
+      <Controller
+        control={control}
+        name="name"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            placeholder="Enter your name"
+            returnKeyType="send"
+            onSubmitEditing={handleSubmit(onSubmit)}
+          />
+        )}
+      />
+      <View style={styles.bottomContainer}>
+        <Text style={styles.error} variant="bodyMedium">{errors?.name?.message}</Text>
+        <Button
+          mode="contained"
+          dark
+          uppercase
+          disabled={!isValid}
+          theme={{ roundness: 1 }}
+          contentStyle={styles.buttonContent}
+          style={[
+            styles.button,
+            {
+              borderColor: transparentize(
+                isValid ? 0.7 : 0.9,
+                appTheme.colors.primary
+              ),
+              backgroundColor: transparentize(
+                isValid ? 0.7 : 0.9,
+                appTheme.colors.primary
+              ),
+            },
+          ]}
           onPress={handleSubmit(onSubmit)}
         >
-          <Text style={styles.buttonText}>Continue</Text>
-        </TouchableOpacity>
+          <Text variant="bodyLarge" style={styles.buttonText}>
+            Continue
+          </Text>
+        </Button>
       </View>
-    </View>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
-    padding: 24,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
   },
-  main: {
+  errorText: {
+    color: "red",
+  },
+  bottomContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  button: {
+    width: "100%",
+  },
+  buttonContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 55,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  titleContainer: {
     flex: 1,
     justifyContent: "center",
-    maxWidth: 960,
-    marginHorizontal: "auto",
+    alignItems: "center",
   },
   title: {
-    fontSize: 64,
     fontWeight: "bold",
   },
   subtitle: {
@@ -115,17 +159,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: "100%",
   },
-  button: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    alignItems: "center",
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-  },
+
   error: {
     color: "red",
     marginVertical: 5,

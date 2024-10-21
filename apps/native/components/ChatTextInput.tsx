@@ -31,15 +31,10 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
         value={value}
         returnKeyType="send"
         onSubmitEditing={handleSubmit}
-        outlineColor={appTheme.colors.primary}
-        activeOutlineColor={appTheme.colors.primaryLight}
         // TextInput 'right' is not displaying component - added as position absolute
         right={<></>}
         style={{
           flex: 1,
-          backgroundColor: appTheme.colors.primary,
-        //   borderColor: "blue",
-          borderWidth: 2,
         }}
       />
       <TouchableOpacity

@@ -1,41 +1,60 @@
 import React from "react";
-import { View } from "react-native";
-import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
-import { Card, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { FlatList } from "react-native";
+import { useRouter, Stack } from "expo-router";
 import { useChattingStore } from "../../utils/providers/chatting-store-provider";
-import Avatar from "../../components/Avatar";
+import { Container } from "../../components/Container";
+import { ChatListItem } from "../../components/ChatListItem";
+import { Appbar } from "react-native-paper";
+import { useUserStore } from "../../utils/providers/user-store-provider";
 
 export default function Page() {
+  const { clearUser } = useUserStore((state) => state);
   const { users } = useChattingStore((state) => state);
-
   const router = useRouter();
+
   const handleChat = (userId: string) => {
-    router.push(("/chatting/room/" + userId) as any);
+    router.navigate(`/chatting/room/${userId}`);
+  };
+
+  const handleLogout = () => {
+    clearUser();
+    router.navigate("/");
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
+    <Container>
+      <Stack.Screen
+        options={{
+          title: "TrashTalk",
+          headerRight: () => (
+            <Appbar.Action icon="logout" onPress={handleLogout} />
+          ),
+        }}
+      />
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
+        style={styles.messagesList}
         renderItem={({ item }) => (
-          <TouchableOpacity key={item.id} onPress={() => handleChat(item.id)}>
-            <Card>
-              <Card.Title
-                title={item.name}
-                left={(props) => <Avatar {...props} label={item.name.charAt(0)} isOnline={!!item?.online} />}
-                subtitle={item.online ? "Online" : "Offline"}
-              />
-            </Card>
-          </TouchableOpacity>
+          <ChatListItem
+            isOnline={!!item?.online}
+            title={item.name}
+            onPress={() => handleChat(item.id)}
+          />
         )}
-        ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-    </View>
+    </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  separator: {
+    height: 2,
+  },
+  messagesList: {
+    flex: 1,
+    paddingHorizontal: 12,
+  },
+});

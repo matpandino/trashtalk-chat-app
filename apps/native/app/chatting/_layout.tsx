@@ -1,16 +1,17 @@
 import { Stack } from "expo-router";
-import { Text } from "react-native-paper";
-import { useAppTheme } from "../../utils/theme";
+import Header from "../../components/Header";
+import { StatusBar } from "expo-status-bar";
 
 export default function Layout() {
-  const appTheme = useAppTheme();
   return (
-    <Stack
-      screenOptions={{
-        headerBackTitle: "Back",
-        headerStyle: {backgroundColor: appTheme.colors.surfaceVariant},
-        headerTitle: ({children}) => <Text variant="titleMedium">{children}</Text>,
-      }}
-    />
+    <>
+      <Stack
+        screenOptions={{
+          headerBackTitle: "Back",
+          header: (props) => <Header {...props} />,
+        }}
+      />
+      <StatusBar style="light" />
+    </>
   );
 }

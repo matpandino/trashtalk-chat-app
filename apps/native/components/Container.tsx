@@ -4,32 +4,39 @@ import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useAppTheme } from "../utils/theme";
-import { useHeaderHeight } from "@react-navigation/elements";
+import {
+  HeaderHeightContext,
+  useHeaderHeight,
+} from "@react-navigation/elements";
 
 interface ContainerProps extends React.ComponentProps<typeof View> {}
 
 export const Container: React.FC<ContainerProps> = (props) => {
   const appTheme = useAppTheme();
-  const height = useHeaderHeight()
+  const headerHeight = React.useContext(HeaderHeightContext) ?? 0;
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} keyboardVerticalOffset={height} behavior="padding">
-      <SafeAreaView
-        style={[
-          styles.safeArea,
-          { backgroundColor: appTheme.colors.background },
-        ]}
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: appTheme.colors.background }]}
+    >
+      <KeyboardAvoidingView
+        {...props}
+        style={[styles.container, Array.isArray(props.style) ? props.style : [props.style]]}
+        keyboardVerticalOffset={headerHeight}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.container} {...props}>
-          {props.children}
-        </View>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        {props.children}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAreaView: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
   },
