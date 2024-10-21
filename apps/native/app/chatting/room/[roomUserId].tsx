@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUserStore } from "../../../utils/providers/user-store-provider";
 import { Chip, Text } from "react-native-paper";
 import { FlatList } from "react-native";
-import { ChatHeaderTitle } from "../../../components/ChatHeaderTitle";
+import { UserAvatarStatus } from "../../../components/UserAvatarStatus";
 import { useAppTheme } from "../../../utils/theme";
 import { Container } from "../../../components/Container";
 import { ChatTextInput } from "../../../components/ChatTextInput";
@@ -74,7 +74,8 @@ export default function Page() {
       <Stack.Screen
         options={{
           headerTitle: () => (
-            <ChatHeaderTitle
+            <UserAvatarStatus
+              centralize
               isOnline={!!chattingUser?.online}
               title={chattingUser?.name || ""}
             />

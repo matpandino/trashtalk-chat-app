@@ -1,34 +1,33 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Text } from "react-native-paper";
-import Avatar from "./Avatar";
 import { useAppTheme } from "../utils/theme";
+import { UserAvatarStatus } from "./UserAvatarStatus";
 
-interface ChatListItemProps {
+interface ChatListItemProps extends React.ComponentProps<typeof View> {
   title: string;
   isOnline: boolean;
   onPress?: () => void;
+  centralize?: boolean;
 }
 
 export const ChatListItem: React.FC<ChatListItemProps> = ({
   onPress,
   title,
   isOnline,
+  ...props
 }) => {
   const appTheme = useAppTheme();
   return (
     <TouchableOpacity onPress={() => onPress?.()}>
       <View
+        {...props}
         style={[
           styles.container,
           { backgroundColor: appTheme.colors.background },
+          Array.isArray(props.style) ? props.style : [props.style],
         ]}
       >
-        <Avatar size={44} label={title.charAt(0) || ""} isOnline={isOnline} />
-        <View style={styles.content}>
-          <Text variant="bodyLarge">{title}</Text>
-          <Text variant="bodySmall">{isOnline ? "Online" : "Offline"}</Text>
-        </View>
+        <UserAvatarStatus avatarSize={48} isOnline={isOnline} title={title} />
       </View>
     </TouchableOpacity>
   );
@@ -41,5 +40,4 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 6,
   },
-  content: {},
 });
