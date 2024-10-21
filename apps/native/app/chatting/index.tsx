@@ -7,6 +7,7 @@ import { Container } from "../../components/Container";
 import { ChatListItem } from "../../components/ChatListItem";
 import { Appbar } from "react-native-paper";
 import { useUserStore } from "../../utils/providers/user-store-provider";
+import { Separator } from "../../components/Separator";
 
 export default function Page() {
   const { clearUser } = useUserStore((state) => state);
@@ -43,16 +44,13 @@ export default function Page() {
             onPress={() => handleChat(item.id)}
           />
         )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <Separator />}
       />
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  separator: {
-    height: 2,
-  },
   messagesList: {
     flex: 1,
     paddingHorizontal: 12,
