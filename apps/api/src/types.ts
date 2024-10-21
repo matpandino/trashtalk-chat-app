@@ -17,18 +17,8 @@ export enum EventType {
     USER_ONLINE = 'user_online',
     USER_OFFLINE = 'user_offline',
     USER_LIST = 'user_list',
-    ROOMS_LIST = 'rooms_list',
     MESSAGE = 'message',
     NEW_ROOM = 'new_room',
-}
-
-export interface RoomsListEvent {
-    event: EventType.ROOMS_LIST;
-    rooms: {
-        id: string;
-        users: User[];
-        messages: Message[];
-    }[]
 }
 
 export interface NewRoomEvent {
@@ -71,7 +61,7 @@ export interface UserListEvent {
     }[];
 }
 
-export type ServerEvent = UserOnlineEvent | UserOfflineEvent | MessageEvent | UserListEvent | NewRoomEvent | RoomsListEvent;
+export type ServerEvent = UserOnlineEvent | UserOfflineEvent | MessageEvent | UserListEvent | NewRoomEvent;
 
 // Other Types
 export interface UserSockets {

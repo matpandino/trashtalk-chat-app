@@ -146,14 +146,6 @@ export const createChattingStore = (
               }
             })
             break;
-          case EventType.ROOMS_LIST:
-            set(state => {
-              return {
-                ...state,
-                rooms: serverEvent.rooms
-              }
-            })
-            break;
         }
       })
     }
