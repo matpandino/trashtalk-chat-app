@@ -1,9 +1,9 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query"; // Updated import
+import { useMutation } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import { useUserStore } from "../utils/providers/user-store-provider";
 import apiClient from "../utils/axios";
@@ -12,6 +12,7 @@ import { TextInput } from "../components/TextInput";
 import { Button, Text } from "react-native-paper";
 import { useAppTheme } from "../utils/theme";
 import { transparentize } from "polished";
+import axios from "axios";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -39,15 +40,30 @@ export default function Page() {
   const appTheme = useAppTheme();
 
   const mutation = useMutation({
-    mutationFn: (data: FormData) => {
-      return apiClient.post<CreateUserResponse>("/users", data);
+    mutationFn: async (data: FormData) => {
+      try {
+        const res = await apiClient.post<CreateUserResponse>("/users", data);
+        return res;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.log(
+            "error response",
+            JSON.stringify(error.response?.data, null, 2)
+          );
+          throw new Error(error.response?.data?.error || "Try Again Later");
+        } else {
+          console.log("error", JSON.stringify(error, null, 2));
+          throw new Error("An unexpected error occurred");
+        }
+      }
     },
     onSuccess: ({ data }) => {
       userStore.setUser({ id: data.id, name: data.name });
       router.push("/chatting/");
     },
     onError: (error) => {
-      setError("name", { message: "Failed to create user" });
+      console.log("error", JSON.stringify(error.stack));
+      setError("root", { message: "Failed to create user. " + error.message });
     },
   });
 
@@ -58,6 +74,11 @@ export default function Page() {
   if (userStore.user) {
     return <Redirect href={"/chatting/"} />;
   }
+
+  const buttonColor = transparentize(
+    !errors?.name ? 0.7 : 0.9,
+    appTheme.colors.primary
+  );
 
   return (
     <Container style={styles.container}>
@@ -81,25 +102,21 @@ export default function Page() {
         )}
       />
       <View style={styles.bottomContainer}>
-        <Text style={styles.error} variant="bodyMedium">{errors?.name?.message}</Text>
+        <Text style={styles.error} variant="bodyMedium">
+          {errors?.name?.message || errors?.root?.message}
+        </Text>
         <Button
           mode="contained"
           dark
           uppercase
-          disabled={!isValid}
+          disabled={!!errors?.name}
           theme={{ roundness: 1 }}
           contentStyle={styles.buttonContent}
           style={[
             styles.button,
             {
-              borderColor: transparentize(
-                isValid ? 0.7 : 0.9,
-                appTheme.colors.primary
-              ),
-              backgroundColor: transparentize(
-                isValid ? 0.7 : 0.9,
-                appTheme.colors.primary
-              ),
+              borderColor: buttonColor,
+              backgroundColor: buttonColor,
             },
           ]}
           onPress={handleSubmit(onSubmit)}
