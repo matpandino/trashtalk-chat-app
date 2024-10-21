@@ -69,24 +69,6 @@ server.get('/users/:userId/room', async (request, reply) => {
 });
 
 
-// Get room info route
-server.get('/rooms/:id', async (request, reply) => {
-  const { id } = request.params as { id: string };
-  const { token } = request.headers as { token: string };
-  if (!token) return reply.status(400).send({ error: 'Invalid user token' });
-  if (!id) return reply.status(400).send({ error: 'Invalid room ID' });
-
-  const room = await prisma.chatRoom.findUnique({
-    where: { id }, include: {
-      messages: true,
-      users: true
-    }
-  });
-  if (!room?.users.map(u => u.id).includes(token)) return reply.status(401).send({ error: 'User is not authorized to access this room' });
-  if (!room) return reply.status(404).send({ error: 'Room not found' });
-  return reply.status(200).send(room);
-});
-
 // WebSocket
 server.register(async function (server) {
   server.get('/chat', { websocket: true }, async (socket, req) => {
