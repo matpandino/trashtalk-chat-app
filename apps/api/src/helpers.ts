@@ -118,6 +118,12 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
     const message = await prisma.message.findUniqueOrThrow({
         where: { id: messageId },
         select: {
+            id: true,
+            roomId: true,
+            sentById: true,
+            attachment: true,
+            data: true,
+            createdAt: true,
             room: {
                 select: {
                     id: true,
@@ -128,22 +134,28 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
                     }
                 }
             },
-            likes: true,
+            likes: {
+                select: {
+                    id: true,
+                    userId: true,
+                }
+            },
             sentBy: true
         }
     });
 
-    const likedByCurrentUser = message.likes.find(like => like.userId === currentUserId);
-
-    if (likedByCurrentUser) {
-        await prisma.like.delete({
-            where: {
-                id: likedByCurrentUser.id
-            },
+    const likedByCurrentUser = message.likes.filter(like => like.userId === currentUserId);
+    if (likedByCurrentUser.length) {
+        await prisma.like.deleteMany({
+            where:{
+                id: {
+                    in: likedByCurrentUser.map(like => like.id)
+                }
+            }
         });
         const messageWithoutLike = {
             ...message,
-            likes: message.likes.filter(l => l.userId !== currentUserId)
+            likes: message.likes.filter(l => l.userId !== currentUserId) || []
         }
         const event: UpdateMessageEvent = {
             event: EventType.UPDATE_MESSAGE,

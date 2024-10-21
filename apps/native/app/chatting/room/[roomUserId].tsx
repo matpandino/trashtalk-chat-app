@@ -1,22 +1,17 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useMemo } from "react";
+import { StyleSheet, View } from "react-native";
+import React, { useMemo } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useChattingStore } from "../../../utils/providers/chatting-store-provider";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUserStore } from "../../../utils/providers/user-store-provider";
-import { Chip, Text } from "react-native-paper";
 import { FlatList } from "react-native";
 import { UserAvatarStatus } from "../../../components/UserAvatarStatus";
 import { useAppTheme } from "../../../utils/theme";
 import { Container } from "../../../components/Container";
 import { ChatTextInput } from "../../../components/ChatTextInput";
-import {
-  GestureHandlerRootView,
-  TapGestureHandler,
-} from "react-native-gesture-handler";
-import { DoubleTouchableOpacity } from "../../../components/DoubleTouchOpacity";
+import { ChatMessage } from "../../../components/ChatMessage";
 
 const schema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -53,7 +48,6 @@ export default function Page() {
   };
 
   const handleMessageLikeToggle = (messageId: string) => {
-    console.log("like toggle")
     likeToggle({ messageId });
   };
 
@@ -70,44 +64,22 @@ export default function Page() {
           ),
         }}
       />
-      <GestureHandlerRootView>
-        <FlatList
-          inverted
-          style={styles.messagesList}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => {
-            const isSentByCurrentUser = item.sentById === currentUser?.id;
-            const spacePrevMessage =
-              messages?.[index - 1] &&
-              messages?.[index - 1]?.sentById !== item?.sentById;
-
-            return (
-              <DoubleTouchableOpacity
-                onDoublePress={() => handleMessageLikeToggle(item.id)}
-                key={item.id}
-              >
-                <Chip
-                  style={{
-                    borderRadius: 16,
-                    marginLeft: isSentByCurrentUser ? 60 : 0,
-                    marginRight: isSentByCurrentUser ? 0 : 60,
-                    borderBottomRightRadius: isSentByCurrentUser ? 0 : 16,
-                    borderBottomLeftRadius: isSentByCurrentUser ? 16 : 0,
-                    marginBottom: spacePrevMessage ? 8 : 0,
-                    backgroundColor: isSentByCurrentUser
-                      ? appTheme.colors.primary
-                      : appTheme.colors.primaryBg,
-                  }}
-                >
-                  <Text>{item.data}</Text>
-                </Chip>
-              </DoubleTouchableOpacity>
-            );
-          }}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
-      </GestureHandlerRootView>
+      <FlatList
+        inverted
+        style={styles.messagesList}
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <ChatMessage
+            currentUser={currentUser}
+            item={item}
+            index={index}
+            prevMessage={messages?.[index - 1]}
+            handleMessageLikeToggle={handleMessageLikeToggle}
+          />
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
 
       <View>
         <Controller

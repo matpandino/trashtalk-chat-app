@@ -47,7 +47,12 @@ server.get('/users/:userId/room', async (request, reply) => {
       }
     },
     include: {
-      messages: true,
+      messages: {
+        include: {
+          likes: true,
+          sentBy: true,
+        }
+      },
       users: true,
     },
   });
@@ -58,7 +63,12 @@ server.get('/users/:userId/room', async (request, reply) => {
           connect: [userRoom, currentUser],
         },
       },
-      select: { id: true, messages: true, users: true },
+      select: { id: true, messages: {
+        include: {
+          likes: true,
+          sentBy: true,
+        }
+      }, users: true },
     });
     const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
     const sockets = usersSockets.filter(u => userIds.includes(u.userId)).flatMap(us => us.sockets);

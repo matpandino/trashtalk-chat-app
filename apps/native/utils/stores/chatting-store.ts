@@ -1,19 +1,25 @@
 import { createStore } from 'zustand'
 import { connectWebSocket, sendSocketMessage } from '../socket';
 import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '../../../api/src/types';
-import apiClient from '../axios';
 
-interface Users {
+export interface User {
   id: string;
   name: string;
   roomId?: string | null;
   online?: boolean;
 }
 
-interface Message {
+interface Like {
+  id: string;
+  userId: string;
+}
+
+export interface Message {
   id: string;
   data: string;
   sentById: string | null;
+  attachment: string | null;
+  likes: Like[]
   createdAt: Date;
 }
 
@@ -53,7 +59,7 @@ export const createChattingStore = (
       const { roomId, message } = newMessageDTO;
       sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message } as ClientEventSentMessage);
     },
-    likeToggle: ({messageId}) => {
+    likeToggle: ({ messageId }) => {
       sendSocketMessage({ event: ClientEventType.LIKE_TOGGLE, messageId } as ClientEventLikeToggleMessage);
     },
     updateRoom: (newRoomData) => {
@@ -120,7 +126,6 @@ export const createChattingStore = (
                       ...state.rooms,
                       {
                         id: serverEvent.message.roomId,
-                        users: [],
                         messages: [serverEvent.message],
                       }
                     ]
