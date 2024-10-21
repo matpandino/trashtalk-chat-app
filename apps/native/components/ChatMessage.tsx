@@ -103,6 +103,5 @@ const styles = StyleSheet.create({
     minHeight: 200,
     marginVertical: 6,
     width: "100%",
-    backgroundColor: "#0553",
   },
 });

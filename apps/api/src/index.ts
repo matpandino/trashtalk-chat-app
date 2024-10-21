@@ -63,12 +63,14 @@ server.get('/users/:userId/room', async (request, reply) => {
           connect: [userRoom, currentUser],
         },
       },
-      select: { id: true, messages: {
-        include: {
-          likes: true,
-          sentBy: true,
-        }
-      }, users: true },
+      select: {
+        id: true, messages: {
+          include: {
+            likes: true,
+            sentBy: true,
+          }
+        }, users: true
+      },
     });
     const newEvent: NewRoomEvent = { event: EventType.NEW_ROOM, room: newRoom };
     const sockets = usersSockets.filter(u => userIds.includes(u.userId)).flatMap(us => us.sockets);
@@ -78,6 +80,9 @@ server.get('/users/:userId/room', async (request, reply) => {
   return reply.status(200).send(room);
 });
 
+// todo: upload image logic
+// const uploadImage = async ({ image }: { image: string }) => {
+// };
 
 // WebSocket
 server.register(async function (server) {
@@ -94,20 +99,27 @@ server.register(async function (server) {
           switch (messageParsed?.event) {
             case ClientEventType.LIKE_TOGGLE:
               const likeToggleEvent = messageParsed as ClientEventLikeToggleMessage;
-              console.log("LOG: likeToggleEvent",JSON.stringify(likeToggleEvent))
+              console.log("LOG: likeToggleEvent", JSON.stringify(likeToggleEvent))
               handleLikeToggleEvent({ currentUserId: user.id, messageId: likeToggleEvent.messageId, usersSockets });
               break
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
+              console.log("Log: messageEvent request: ", messageEvent)
               if (!messageEvent?.roomId) return socket.send(JSON.stringify({ error: 'Invalid roomId' }));
               let room = await getChatRoomById({ chatRoomId: messageEvent.roomId });
               if (!room) {
                 socket.send(JSON.stringify({ error: 'Room not found' }));
                 return
               }
+              // TODO: Upload image to s3 or self host..
+              // if(messageEvent.image){
+                // const image = await uploadImage({ image: messageEvent.image });
+                // messageEvent.image = image;
+              // }
               const createdMessage = await prisma.message.create({
                 data: {
                   data: messageEvent.data,
+                  attachment: messageEvent.image,
                   roomId: room.id,
                   sentById: user.id,
                 },

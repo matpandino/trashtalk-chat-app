@@ -37,7 +37,7 @@ interface ChattingStoreState {
 
 interface ChattingStoreActions {
   likeToggle: (likeToggleDTO: { messageId: string }) => void,
-  sendMessage: (newMessageDTO: { roomId: string; message: string }) => void;
+  sendMessage: (newMessageDTO: { roomId: string; message: string, image?: string }) => void;
   initializeSocket: (token: string) => void;
   updateRoom: (newRoomData: Room) => void;
 }
@@ -56,8 +56,8 @@ export const createChattingStore = (
   return createStore<ChattingStore>()((set) => ({
     ...initState,
     sendMessage: (newMessageDTO) => {
-      const { roomId, message } = newMessageDTO;
-      sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message } as ClientEventSentMessage);
+      const { roomId, message, image } = newMessageDTO;
+      sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message, image } as ClientEventSentMessage);
     },
     likeToggle: ({ messageId }) => {
       sendSocketMessage({ event: ClientEventType.LIKE_TOGGLE, messageId } as ClientEventLikeToggleMessage);

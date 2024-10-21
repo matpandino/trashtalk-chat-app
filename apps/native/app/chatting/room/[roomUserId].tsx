@@ -8,13 +8,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useUserStore } from "../../../utils/providers/user-store-provider";
 import { FlatList } from "react-native";
 import { UserAvatarStatus } from "../../../components/UserAvatarStatus";
-import { useAppTheme } from "../../../utils/theme";
 import { Container } from "../../../components/Container";
 import { ChatTextInput } from "../../../components/ChatTextInput";
 import { ChatMessage } from "../../../components/ChatMessage";
 
 const schema = z.object({
-  message: z.string().min(1, "Message is required"),
+  message: z.object({
+    text: z.string().min(1, "Message is required"),
+    image: z.any().optional()
+  }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -25,8 +27,6 @@ export default function Page() {
     (state) => state
   );
   const { user: currentUser } = useUserStore((state) => state);
-
-  const appTheme = useAppTheme();
 
   const roomUser = users.find((u) => u.id === roomUserId);
   const roomData = rooms.find((r) => r.id === roomId);
@@ -40,10 +40,13 @@ export default function Page() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: { message: string }) => {
-    sendMessage({ roomId: roomId as string, message: data.message });
+  const onSubmit = (data: { message: { text: string, image?: string } }) => {
+    sendMessage({ roomId: roomId as string, message: data.message.text, image: data.message?.image });
     reset({
-      message: "",
+      message: {
+        text: "",
+        image: undefined
+      }
     });
   };
 
@@ -87,6 +90,7 @@ export default function Page() {
           name="message"
           render={({ field: { onChange, value } }) => (
             <ChatTextInput
+              canSubmit={!!value?.text || !!value?.image}
               onChange={onChange}
               value={value}
               handleSubmit={handleSubmit(onSubmit)}

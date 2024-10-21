@@ -15,6 +15,7 @@ export interface ClientEventLikeToggleMessage {
 export interface ClientEventSentMessage {
     event: ClientEventType.NEW_MESSAGE;
     data: string;
+    image?: string;
     roomId: string;
 }
 
