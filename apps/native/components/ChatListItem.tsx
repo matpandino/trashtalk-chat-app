@@ -17,8 +17,13 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
 }) => {
   const appTheme = useAppTheme();
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={styles.container}>
+    <TouchableOpacity onPress={() => onPress?.()}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: appTheme.colors.background },
+        ]}
+      >
         <Avatar size={44} label={title.charAt(0) || ""} isOnline={isOnline} />
         <View style={styles.content}>
           <Text variant="bodyLarge">{title}</Text>

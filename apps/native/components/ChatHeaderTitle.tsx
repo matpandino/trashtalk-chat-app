@@ -13,9 +13,9 @@ export const ChatHeaderTitle: React.FC<ChatHeaderTitleProps> = ({
   isOnline,
 }) => (
   <View style={styles.container}>
-    <Avatar size={30} label={title.charAt(0) || ""} isOnline={isOnline} />
-    <View>
-      <Text variant="titleSmall">{title}</Text>
+    <Avatar size={36} label={title.charAt(0) || ""} isOnline={isOnline} />
+    <View style={styles.content}>
+      <Text variant="titleMedium">{title}</Text>
       <Text variant="bodySmall">{isOnline ? "Online" : "Offline"}</Text>
     </View>
   </View>
@@ -23,8 +23,13 @@ export const ChatHeaderTitle: React.FC<ChatHeaderTitleProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: "center",
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 14,
+  },
+  content: {
+    gap: 2,
   },
 });

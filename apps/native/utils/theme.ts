@@ -1,22 +1,28 @@
-import { DefaultTheme, useTheme } from "react-native-paper";
-import { ThemeProp } from "react-native-paper/lib/typescript/types";
-
-export type AppTheme = {
-    colors: {
-        red: string;
-        sentMessageBackground: string;
-        receivedMessageBackground: string;
-    };
-} & ThemeProp;
+import { MD3DarkTheme, useTheme } from "react-native-paper";
+import { MD3Colors } from "react-native-paper/lib/typescript/types";
 
 export const useAppTheme = () => useTheme<AppTheme>();
 
-export const appTheme: AppTheme = {
-    ...DefaultTheme,
+const customColors = {
+    red: "#f25757",
+    sentMessageBackground: "#dbcbff",
+    receivedMessageBackground: "#e6e6e6",
+    primaryLight: "#6b7496",
+}
+
+const defaultColors: MD3Colors = {
+    ...MD3DarkTheme.colors,
+    primary: "#2c3869",
+    background: "#080b17",
+    backdrop: "#323f73",
+};
+
+export const appTheme = {
+    ...MD3DarkTheme,
     colors: {
-        ...DefaultTheme.colors,
-        red: "#ff3f3f",
-        sentMessageBackground: "#dbcbff",
-        receivedMessageBackground: "#e6e6e6",
+        ...defaultColors,
+        ...customColors,
     },
 };
+
+export type AppTheme = typeof appTheme;
