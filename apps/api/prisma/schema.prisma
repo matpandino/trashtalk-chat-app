@@ -15,6 +15,7 @@ model User {
   name    String     @unique
   rooms   ChatRoom[] @relation("UserRooms")
   Message Message[]
+  likes   Like[]
 }
 
 model ChatRoom {
@@ -24,11 +25,21 @@ model ChatRoom {
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  data      String
-  createdAt DateTime @default(now())
-  roomId    String
-  room      ChatRoom @relation(fields: [roomId], references: [id])
-  sentById  String?
-  sentBy    User?    @relation(fields: [sentById], references: [id])
+  id         String   @id @default(cuid())
+  data       String
+  attachment String?
+  createdAt  DateTime @default(now())
+  roomId     String
+  room       ChatRoom @relation(fields: [roomId], references: [id])
+  sentById   String?
+  sentBy     User?    @relation(fields: [sentById], references: [id])
+  likes      Like[]
+}
+
+model Like {
+  id        String  @id @default(cuid())
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id])
+  userId    String
+  User      User    @relation(fields: [userId], references: [id])
 }
