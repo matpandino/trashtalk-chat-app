@@ -10,6 +10,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 *Overall*
 - **GIT**: To save time I started comitting to the main branch at some point of the project. This is not a good practice and should not be tolerated in serious projects. Usually I create a PR for each chore/feature/fix with a description of the change
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
+- **TRPC**: I've noticed middle project that if I used trpc to integrate api/frontend it would probably speed the procces of building this challenge
 
 *APP*
 - **Componentization**: Some components on the App still need to be refactored for better reusability.
