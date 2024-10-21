@@ -93,8 +93,8 @@ export const getAndNotifyUsersList = async ({ userId, usersSockets, notifySocket
 }
 
 export const validateNewSocketConnection = async ({ req, socket, usersSockets }: { socket: WebSocket, req: FastifyRequest, usersSockets: UserSockets[] }) => {
-    const token = req.headers?.token || req.query?.token
-    if (!token) {
+    const token = req.headers?.token || (req.query as { token?: string })?.token;
+    if (!token || Array.isArray(token)) {
         socket.send(JSON.stringify({ error: 'Unauthorized' }));
         socket.close();
         throw new Error('Invalid token');
