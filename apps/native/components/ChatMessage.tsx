@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   likeIconContainer: {
     position: "absolute",
-    top: 8,
+    bottom: 8,
   },
   image: {
     flex: 1,
