@@ -75,5 +75,7 @@ The API will run on http://localhost:8080.
 
 ## Architecture Diagram
 
+Here is the diagram that I've built to help me visualize this project before building. It's not 100% accurate but I think it's a important step to start understanding a problem and creating a solution
+
 <img width="100%" alt="image" src="https://github.com/user-attachments/assets/0bece351-7771-4450-b93b-4a209bd2f705">
 <img width="100%" alt="image" src="https://github.com/user-attachments/assets/8a99d285-b164-4491-a552-c3394e7c0743">
