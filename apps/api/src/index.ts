@@ -113,8 +113,8 @@ server.register(async function (server) {
               }
               // TODO: Upload image to s3 or self host..
               // if(messageEvent.image){
-                // const image = await uploadImage({ image: messageEvent.image });
-                // messageEvent.image = image;
+              // const image = await uploadImage({ image: messageEvent.image });
+              // messageEvent.image = image;
               // }
               const createdMessage = await prisma.message.create({
                 data: {
@@ -147,7 +147,7 @@ server.register(async function (server) {
       // Handle client disconnect
       socket.on('close', () => {
         if (user) {
-          const allSockets = usersSockets.filter(u => u.userId !== user.id).flatMap(u => u.sockets);
+          const allSockets = usersSockets.flatMap(u => u.sockets);
           console.log(`LOG: ${user.name} is offline`);
           const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
           sendEvent({ event, sockets: allSockets });
@@ -156,6 +156,7 @@ server.register(async function (server) {
         }
       });
     } catch (error: any) {
+      console.error("Socket Error: ", error)
       socket.send(JSON.stringify({ error: error?.message }));
       return
     }

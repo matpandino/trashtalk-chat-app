@@ -34,8 +34,8 @@ export const ChattingStoreProvider = ({
   const user = useUserStore((state) => state.user);
 
   useEffect(() => {
+    closeWebSocket();
     if (user?.id && storeRef.current) {
-      closeWebSocket();
       storeRef.current.getState().initializeSocket(user?.id);
     }
   }, [user?.id]);
