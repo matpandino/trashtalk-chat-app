@@ -12,6 +12,7 @@ import {
   createChattingStore,
 } from "../stores/chatting-store";
 import { UserStoreContext, useUserStore } from "./user-store-provider";
+import { closeWebSocket } from "../socket";
 
 export type ChattingStoreApi = ReturnType<typeof createChattingStore>;
 
@@ -34,6 +35,7 @@ export const ChattingStoreProvider = ({
 
   useEffect(() => {
     if (user?.id && storeRef.current) {
+      closeWebSocket();
       storeRef.current.getState().initializeSocket(user?.id);
     }
   }, [user?.id]);

@@ -1,7 +1,4 @@
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
@@ -26,44 +23,27 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Page() {
-  const { roomUserId } = useLocalSearchParams();
-  const { rooms, users, sendMessage, syncRoomInfo } = useChattingStore(
-    (state) => state
-  );
+  const { roomUserId, roomId } = useLocalSearchParams();
+  const { rooms, users, sendMessage } = useChattingStore((state) => state);
   const { user: currentUser } = useUserStore((state) => state);
 
   const appTheme = useAppTheme();
 
-  const roomData = rooms.find((room) => {
-    const roomUserIds = room.users.map((u) => u.id);
-    if (!currentUser?.id) return false;
-    return (
-      roomUserIds.includes(currentUser?.id) &&
-      roomUserIds.includes(roomUserId as string)
-    );
-  });
-
-  const conversationUserId = roomData?.users
-    .map((u) => u.id)
-    .find((u) => u !== currentUser?.id);
-  const chattingUser = users.find((u) => u.id === conversationUserId);
+  const roomUser = users.find((u) => u.id === roomUserId);
+  const roomData = rooms.find((r) => r.id === roomId);
 
   const messages = useMemo(() => {
     const reversedMessages = [...(roomData?.messages || [])].reverse();
     return reversedMessages;
   }, [roomData?.messages]);
 
-  useEffect(() => {
-    if (!currentUser?.id) return;
-    syncRoomInfo({ roomId: roomUserId as string, userId: currentUser?.id });
-  }, [roomUserId, currentUser?.id]);
-
   const { control, handleSubmit, reset } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const onSubmit = (data: { message: string }) => {
-    // sendMessage({ userId: roomUserId as string, message: data.message });
+    console.log("submit roomId",roomId)
+    sendMessage({ roomId: roomId as string, message: data.message });
     reset({
       message: "",
     });
@@ -76,13 +56,12 @@ export default function Page() {
           headerTitle: () => (
             <UserAvatarStatus
               centralize
-              isOnline={!!chattingUser?.online}
-              title={chattingUser?.name || ""}
+              isOnline={!!roomUser?.online}
+              title={roomUser?.name || ""}
             />
           ),
         }}
       />
-
       <FlatList
         inverted
         style={styles.messagesList}
@@ -99,12 +78,14 @@ export default function Page() {
               key={item.id}
               style={{
                 borderRadius: 16,
+                marginLeft: isSentByCurrentUser ? 60 : 0,
+                marginRight: isSentByCurrentUser ? 0 : 60,
                 borderBottomRightRadius: isSentByCurrentUser ? 0 : 16,
                 borderBottomLeftRadius: isSentByCurrentUser ? 16 : 0,
                 marginBottom: spacePrevMessage ? 8 : 0,
                 backgroundColor: isSentByCurrentUser
-                  ? appTheme.colors.sentMessageBackground
-                  : appTheme.colors.receivedMessageBackground,
+                  ? appTheme.colors.primary
+                  : appTheme.colors.primaryBg,
               }}
             >
               <Text>{item.data}</Text>
@@ -138,5 +119,6 @@ const styles = StyleSheet.create({
   messagesList: {
     flex: 1,
     paddingHorizontal: 10,
+    paddingVertical: 6,
   },
 });
