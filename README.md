@@ -58,16 +58,16 @@ To get started, follow these steps:
    yarn
    ```
 2. **Start the project in development mode:**
-
-  To run the project in development mode, use the following command:
   
-  bash
-   ```bash
-   yarn dev
-   ```
+    To run the project in development mode, use the following command:
+    
+     ```bash
+     yarn
+     ```
+  
+    The API will run on http://localhost:8080.
 
-The API will run on http://localhost:8080.
-
+OR navigate to `apps/native` and `apps/api` and run `yarn` and `yarn dev` in separated terminals
 
 
 ## Architecture Diagram
