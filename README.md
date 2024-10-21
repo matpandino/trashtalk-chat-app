@@ -23,7 +23,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 - **API Architecture**: The current API architecture is functional but could be further optimized. Refactoring it into a more modular structure, with better separation of concerns, would enhance maintainability and scalability.
 - **API tests**: Currently there is no testing at all on the api side. Adding test for the common use cases is important to catch possible bugs and enforce business rules 
 - **API Image Upload to S3**: Even though image uploading is working locally. It could directly upload to s3 and save the url of the uploaded image.
-- **Login Token / Auth middleware**: Currently, the token only holds the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
+- **Login Token / Auth middleware**: Currently, the token is the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
 
 These are areas that can be improved in the future.
 
