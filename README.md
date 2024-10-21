@@ -12,6 +12,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 *Overall*
 - **GIT**: To save time I started comitting to the main branch at some point of the project. This is not a good practice and should not be tolerated in serious projects. Usually I create a PR for each chore/feature/fix with a description of the change
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
+- **Typescript module path alias**: It was on my TODO list but this can be quickly addded and it'll improve the code maintainability
 - **TRPC**: I've noticed middle project that if I used trpc to integrate api/frontend it would probably speed the procces of building this challenge
 
 *Mobile App*
