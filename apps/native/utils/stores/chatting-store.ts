@@ -1,6 +1,6 @@
 import { createStore } from 'zustand'
-import { connectWebSocket, sendSocketMessage } from '../socket';
-import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '../../../api/src/types';
+import { connectWebSocket, sendSocketMessage } from '@/utils/socket';
+import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '@/api/types';
 
 export interface User {
   id: string;
@@ -25,12 +25,12 @@ export interface Message {
 
 interface Room {
   id: string;
-  users: Users[];
+  users: User[];
   messages: Message[];
 }
 
 interface ChattingStoreState {
-  users: Users[];
+  users: User[];
   rooms: Room[];
   status: 'online' | 'offline'
 }
