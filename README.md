@@ -1,7 +1,9 @@
 # TrashLab Mobile Challenge
 
 Video demonstration: [https://youtu.be/SmTXhhTYMT4](https://youtu.be/oiEtJt-uRSU)
-
+<p align="center">
+<img width="400px" src="https://github.com/user-attachments/assets/0d3811d9-878c-4407-a0e5-97a1d22c14b7">
+</p>
 
 ### Notes 
 
