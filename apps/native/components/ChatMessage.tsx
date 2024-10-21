@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Message, User } from "../utils/stores/chatting-store";
 import { DoubleTouchableOpacity } from "./DoubleTouchOpacity";
 import { useAppTheme } from "../utils/theme";
@@ -26,25 +26,27 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   const appTheme = useAppTheme();
 
+  const messageMarginSpace = 60;
+
   return (
     <DoubleTouchableOpacity
       onDoublePress={() => handleMessageLikeToggle(item.id)}
       key={item.id + item?.likes?.length || 0}
     >
       <View
-        style={{
-          padding: 8,
-          paddingHorizontal: 16,
-          borderRadius: 16,
-          marginLeft: isSentByCurrentUser ? 60 : 0,
-          marginRight: isSentByCurrentUser ? 0 : 60,
-          borderBottomRightRadius: isSentByCurrentUser ? 0 : 16,
-          borderBottomLeftRadius: isSentByCurrentUser ? 16 : 0,
-          marginBottom: spacePrevMessage ? 8 : 0,
-          backgroundColor: isSentByCurrentUser
-            ? appTheme.colors.primary
-            : appTheme.colors.primaryBg,
-        }}
+        style={[
+          styles.messageContainer,
+          {
+            marginLeft: isSentByCurrentUser ? messageMarginSpace : 0,
+            marginRight: isSentByCurrentUser ? 0 : messageMarginSpace,
+            borderBottomRightRadius: isSentByCurrentUser ? 0 : 16,
+            borderBottomLeftRadius: isSentByCurrentUser ? 16 : 0,
+            marginBottom: spacePrevMessage ? 8 : 0,
+            backgroundColor: isSentByCurrentUser
+              ? appTheme.colors.primary
+              : appTheme.colors.primaryBg,
+          },
+        ]}
       >
         <Text>{item.data}</Text>
       </View>
@@ -52,10 +54,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         <View
           key={like.id}
           style={[
-            { position: "absolute", top: 8 },
+            styles.likeIconContainer,
             isSentByCurrentUser
-              ? { left: 50 - index * 12 }
-              : { right: 50 - index * 12 },
+              ? { left: messageMarginSpace - 10 - index * 12 }
+              : { right: messageMarginSpace - 10 - index * 12 },
           ]}
         >
           <Icon
@@ -71,3 +73,15 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     </DoubleTouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  messageContainer: {
+    padding: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  likeIconContainer: {
+    position: "absolute",
+    top: 8,
+  },
+});
