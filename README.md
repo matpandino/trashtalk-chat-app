@@ -14,6 +14,8 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 - **API Architecture**: The current API architecture is functional but could be further optimized. Refactoring it into a more modular structure, with better separation of concerns, would enhance maintainability and scalability.
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
 - **Storybook**: My intent was to add storybook + unit test when neeeded
+- **SQLITE**: I opted to use sqlite to save time and avoid the setup of a local database just for a MVP/Challenge project;
+- **In Memory WebSockets**: I opted to save user WebSockets connections in memory. I could use something like Redis to store connections but this would increase the project complexity;
 - **API tests**: Currently there is no testing at all on the api side. Adding test for the common use cases is important to catch possible bugs and enforce business rules 
 
 These are areas that can be improved in the future.
