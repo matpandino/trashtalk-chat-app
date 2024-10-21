@@ -23,7 +23,7 @@ export const connectWebSocket = (token: string, statusChange: (newStatus:'online
     };
 
     ws.onerror = (error: any) => {
-        console.error('WebSocket error:', error);
+        // console.error('WebSocket error:', error);
     };
 
     ws.onclose = () => {
@@ -34,10 +34,8 @@ export const connectWebSocket = (token: string, statusChange: (newStatus:'online
 
 export const closeWebSocket = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+        ws?.close?.();
         console.log('WebSocket connection closed');
-    } else {
-        console.error('WebSocket is not connected or already closed');
     }
 };
 
