@@ -5,11 +5,11 @@ Video demonstration: [https://youtu.be/aYACf8UAlf0](https://youtu.be/m1hZ5Hupr8Q
 
 ### Notes 
 
-Due to limited time, some features couldn't be fully implemented:
+Due to limited time, I had to cut some shortcuts that impacted code quality. Here are some areas where there is room for improvement:
 
-- **Image Upload to S3**: This feature is planned but not yet included.
-- **Componentization**: Some items on the App still need to be refactored for better reusability.
-- **Login Token**: Currently, the token only holds the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
+- **API Image Upload to S3**: Even though image uploading is working locally. It could directly upload to s3.
+- **Componentization**: Some components on the App still need to be refactored for better reusability.
+- **Login Token / Auth middleware**: Currently, the token only holds the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
 - **API Architecture**: The current API architecture is functional but could be further optimized. Refactoring it into a more modular structure, with better separation of concerns, would enhance maintainability and scalability.
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
 
