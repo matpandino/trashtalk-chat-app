@@ -25,9 +25,6 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 - **API Image Upload to S3**: Even though image uploading is working locally. It could directly upload to s3 and save the url of the uploaded image.
 - **Login Token / Auth middleware**: Currently, the token is the user ID. While this is sufficient to identify the user making the request, it can be enhanced for better security and scalability.
 
-These are areas that can be improved in the future.
-
-
 ## Project Structure with Turborepo
 
 This monorepo is managed using [Turborepo](https://turbo.build/), which helps in organizing and optimizing the development process across multiple apps and packages. The repository is structured as follows:
