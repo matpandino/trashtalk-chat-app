@@ -4,6 +4,12 @@ import { Message, User } from '@prisma/client';
 // Client to server events
 export enum ClientEventType {
     NEW_MESSAGE = 'new_message',
+    LIKE_TOGGLE = 'like_toggle',
+}
+
+export interface ClientEventLikeToggleMessage {
+    event: ClientEventType.LIKE_TOGGLE;
+    messageId: string;
 }
 
 export interface ClientEventSentMessage {
@@ -18,6 +24,7 @@ export enum EventType {
     USER_OFFLINE = 'user_offline',
     USER_LIST = 'user_list',
     MESSAGE = 'message',
+    UPDATE_MESSAGE = 'update_message',
     NEW_ROOM = 'new_room',
 }
 
@@ -28,6 +35,12 @@ export interface NewRoomEvent {
         users: User[];
         messages: Message[];
     }
+}
+
+export interface UpdateMessageEvent {
+    event: EventType.UPDATE_MESSAGE;
+    roomId: string;
+    message: Message
 }
 
 export interface UserOnlineEvent {
@@ -61,7 +74,7 @@ export interface UserListEvent {
     }[];
 }
 
-export type ServerEvent = UserOnlineEvent | UserOfflineEvent | MessageEvent | UserListEvent | NewRoomEvent;
+export type ServerEvent = UpdateMessageEvent | UserOnlineEvent | UserOfflineEvent | MessageEvent | UserListEvent | NewRoomEvent;
 
 // Other Types
 export interface UserSockets {

@@ -1,8 +1,8 @@
 import fastify from 'fastify';
 import websocketPlugin, { WebSocket } from '@fastify/websocket';
-import { ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserOfflineEvent, UserSockets } from './types'
+import { ClientEventLikeToggleMessage, ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserOfflineEvent, UserSockets } from './types'
 import { PrismaClient } from '@prisma/client';
-import { getAndNotifyUsersList, getChatRoomById, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
+import { getAndNotifyUsersList, getChatRoomById, handleLikeToggleEvent, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
 
 const port = 8080;
 let usersSockets: UserSockets[] = []
@@ -82,10 +82,15 @@ server.register(async function (server) {
         try {
           const messageParsed = JSON.parse(message.toString())
           switch (messageParsed?.event) {
+            case ClientEventType.LIKE_TOGGLE:
+              const likeToggleEvent = messageParsed as ClientEventLikeToggleMessage;
+              console.log("LOG: likeToggleEvent",JSON.stringify(likeToggleEvent))
+              handleLikeToggleEvent({ currentUserId: user.id, messageId: likeToggleEvent.messageId, usersSockets });
+              break
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
               if (!messageEvent?.roomId) return socket.send(JSON.stringify({ error: 'Invalid roomId' }));
-              let room = await getChatRoomById({ chatRoomId: messageEvent.roomId});
+              let room = await getChatRoomById({ chatRoomId: messageEvent.roomId });
               if (!room) {
                 socket.send(JSON.stringify({ error: 'Room not found' }));
                 return
@@ -120,7 +125,7 @@ server.register(async function (server) {
       // Handle client disconnect
       socket.on('close', () => {
         if (user) {
-          const allSockets = usersSockets.filter(u=> u.userId !== user.id).flatMap(u => u.sockets);
+          const allSockets = usersSockets.filter(u => u.userId !== user.id).flatMap(u => u.sockets);
           console.log(`LOG: ${user.name} is offline`);
           const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
           sendEvent({ event, sockets: allSockets });

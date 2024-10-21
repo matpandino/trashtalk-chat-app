@@ -1,6 +1,6 @@
 import { createStore } from 'zustand'
 import { connectWebSocket, sendSocketMessage } from '../socket';
-import { EventType, ClientEventSentMessage, ClientEventType } from '../../../api/src/types';
+import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '../../../api/src/types';
 import apiClient from '../axios';
 
 interface Users {
@@ -30,6 +30,7 @@ interface ChattingStoreState {
 }
 
 interface ChattingStoreActions {
+  likeToggle: (likeToggleDTO: { messageId: string }) => void,
   sendMessage: (newMessageDTO: { roomId: string; message: string }) => void;
   initializeSocket: (token: string) => void;
   updateRoom: (newRoomData: Room) => void;
@@ -51,6 +52,9 @@ export const createChattingStore = (
     sendMessage: (newMessageDTO) => {
       const { roomId, message } = newMessageDTO;
       sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message } as ClientEventSentMessage);
+    },
+    likeToggle: ({messageId}) => {
+      sendSocketMessage({ event: ClientEventType.LIKE_TOGGLE, messageId } as ClientEventLikeToggleMessage);
     },
     updateRoom: (newRoomData) => {
       set(state => {
@@ -129,6 +133,27 @@ export const createChattingStore = (
               return {
                 ...state,
                 users: serverEvent.users
+              }
+            });
+            break
+          case EventType.UPDATE_MESSAGE:
+            set(state => {
+              return {
+                ...state,
+                rooms: [...state.rooms.map(room => {
+                  if (room.id === serverEvent.roomId) {
+                    return {
+                      ...room,
+                      messages: room.messages.map(message => {
+                        if (message.id === serverEvent.message.id) {
+                          return serverEvent.message;
+                        }
+                        return message;
+                      })
+                    }
+                  }
+                  return room;
+                })]
               }
             });
             break

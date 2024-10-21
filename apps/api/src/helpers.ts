@@ -1,5 +1,5 @@
 import { WebSocket } from "@fastify/websocket";
-import { EventType, NewRoomEvent, RoomsListEvent, ServerEvent, UserListEvent, UserOnlineEvent, UserSockets } from "./types";
+import { EventType, ServerEvent, UpdateMessageEvent, UserListEvent, UserOnlineEvent, UserSockets } from "./types";
 import { prisma } from "./index";
 import { FastifyRequest } from "fastify";
 
@@ -14,25 +14,6 @@ export const sendEvent = ({ event, sockets }: { sockets: WebSocket[], event: Ser
 export const getUserById = (userId: string) => {
     return prisma.user.findUnique({ where: { id: userId } });
 };
-
-export const getAndNotifyRoomsList = async ({ notifySockets, userId }: { notifySockets: WebSocket[], userId: string }) => {
-    const userRooms = await prisma.chatRoom.findMany({
-        include: {
-            users: true,
-            messages: true
-        },
-        where: {
-            users: {
-                some: {
-                    id: userId
-                }
-            }
-        }
-    });
-
-    const event: RoomsListEvent = { event: EventType.ROOMS_LIST, rooms: userRooms };
-    sendEvent({ event, sockets: notifySockets });
-}
 
 export const getChatRoomById = async ({ chatRoomId }: { chatRoomId: string }) => {
     const room = await prisma.chatRoom.findUnique({
@@ -124,7 +105,6 @@ export const validateNewSocketConnection = async ({ req, socket, usersSockets }:
         socket.close();
         throw new Error('User is not registered');
     }
-    const prevUserSockets = usersSockets.filter(us => us.userId === user.id);
     const newUserSockets = addSocketToUser({ socket, userId: user.id, usersSockets })
 
     const allSockets = usersSockets.filter(u => u.userId !== token).flatMap(us => us.sockets);
@@ -133,3 +113,68 @@ export const validateNewSocketConnection = async ({ req, socket, usersSockets }:
     console.log(`LOG: ${user.name} is online`);
     return { user, newUserSockets }
 }
+
+export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUserId }: { messageId: string, usersSockets: UserSockets[], currentUserId: string }) => {
+    const message = await prisma.message.findUniqueOrThrow({
+        where: { id: messageId },
+        select: {
+            room: {
+                select: {
+                    id: true,
+                    users: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            },
+            likes: true,
+            sentBy: true
+        }
+    });
+
+    const likedByCurrentUser = message.likes.find(like => like.userId === currentUserId);
+
+    if (likedByCurrentUser) {
+        await prisma.like.delete({
+            where: {
+                id: likedByCurrentUser.id
+            },
+        });
+        const messageWithoutLike = {
+            ...message,
+            likes: message.likes.filter(l => l.userId !== currentUserId)
+        }
+        const event: UpdateMessageEvent = {
+            event: EventType.UPDATE_MESSAGE,
+            message: messageWithoutLike,
+            roomId: message.room.id
+        };
+        const notifySockets = usersSockets.filter(socketUser => message.room.users.map(u => u.id).includes(socketUser.userId)).flatMap(us => us.sockets);
+        sendEvent({ event, sockets: notifySockets });
+    } else {
+        await prisma.like.create({
+            data: {
+                messageId,
+                userId: currentUserId
+            },
+        });
+        const updatedMessage = await prisma.message.findUnique({
+            where: { id: messageId },
+            include: {
+                room: {
+                    select: {
+                        id: true,
+                        users: true,
+                    }
+                },
+                likes: true,
+                sentBy: true
+            }
+        });
+        if (!updatedMessage) return;
+        const notifySockets = usersSockets.filter(socketUser => updatedMessage.room.users.map(u => u.id).includes(socketUser.userId)).flatMap(us => us.sockets);
+        const event: UpdateMessageEvent = { event: EventType.UPDATE_MESSAGE, message: updatedMessage, roomId: updatedMessage.room.id };
+        sendEvent({ event, sockets: notifySockets });
+    }
+}   
