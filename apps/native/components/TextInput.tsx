@@ -13,12 +13,12 @@ export const TextInput: React.FC<CustomTextInputProps> = ({
   return (
     <PaperTextInput
       mode="outlined"
-      outlineColor={appTheme.colors.primary}
-      activeOutlineColor={appTheme.colors.primaryLight}
+      outlineColor={appTheme.colors.primaryBg}
+      activeOutlineColor={appTheme.colors.secondary}
       {...props}
       style={[
         {
-          backgroundColor: appTheme.colors.primary,
+          backgroundColor: appTheme.colors.primaryBg,
           borderWidth: 2,
         },
         ...(Array.isArray(style) ? style : [style]),

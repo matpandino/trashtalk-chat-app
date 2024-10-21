@@ -3,6 +3,7 @@ import { useAppTheme } from "../utils/theme";
 import { TouchableOpacity, View } from "react-native";
 import { TextInput } from "./TextInput";
 import { Icon } from "react-native-paper";
+import { transparentize } from "polished";
 
 interface ChatTextInputProps extends React.ComponentProps<typeof TextInput> {
   handleSubmit: () => void;
@@ -45,7 +46,11 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
           right: 18,
         }}
       >
-        <Icon source="send" color={value ? "white" : "rgba(255, 255, 255, 0.3)"} size={28} />
+        <Icon
+          source="send"
+          color={value ? "white" : transparentize(0.1, "white")}
+          size={26}
+        />
       </TouchableOpacity>
     </View>
   );
