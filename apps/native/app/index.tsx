@@ -15,7 +15,12 @@ import { transparentize } from "polished";
 import axios from "axios";
 
 const schema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z
+    .string({ required_error: "Name cannot be empty" })
+    .min(1, "Name is required")
+    .refine((value) => value.trim() !== "", {
+      message: "Name cannot be empty",
+    }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -30,7 +35,7 @@ export default function Page() {
     control,
     handleSubmit,
     setError,
-    formState: { isValid, errors },
+    formState: { errors, disabled },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -46,13 +51,8 @@ export default function Page() {
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.log(
-            "error response",
-            JSON.stringify(error.response?.data, null, 2)
-          );
           throw new Error(error.response?.data?.error || "Try Again Later");
         } else {
-          console.log("error", JSON.stringify(error, null, 2));
           throw new Error("An unexpected error occurred");
         }
       }
@@ -62,7 +62,6 @@ export default function Page() {
       router.push("/chatting/");
     },
     onError: (error) => {
-      console.log("error", JSON.stringify(error.stack));
       setError("root", { message: "Failed to create user. " + error.message });
     },
   });
