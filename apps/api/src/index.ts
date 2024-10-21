@@ -23,7 +23,7 @@ server.post('/users', async (request, reply) => {
   return reply.status(201).send(newUser);
 });
 
-// Create User route
+// Get - Create room route
 server.get('/users/:userId/room', async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const { token } = request.headers as { token: string };
@@ -36,7 +36,7 @@ server.get('/users/:userId/room', async (request, reply) => {
 
   const userRoom = await prisma.user.findUnique({ where: { id: userId } });
   if (!userRoom) return reply.status(400).send({ error: 'Invalid user ID' });
-  
+
   const userIds = [userRoom.id, currentUser.id];
   const room = await prisma.chatRoom.findFirst({
     where: {
