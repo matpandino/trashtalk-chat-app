@@ -5,6 +5,10 @@ import { DoubleTouchableOpacity } from "./DoubleTouchOpacity";
 import { useAppTheme } from "../utils/theme";
 import { Icon, Text } from "react-native-paper";
 import { darken } from "polished";
+import { Image } from "expo-image";
+
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 interface ChatMessageProps {
   item: Message;
@@ -48,6 +52,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           },
         ]}
       >
+        {item.attachment && (
+          <Image
+            style={styles.image}
+            source={item.attachment}
+            placeholder={{ blurhash }}
+            contentFit="scale-down"
+            transition={1000}
+          />
+        )}
+
         <Text>{item.data}</Text>
       </View>
       {item.likes?.map((like, index) => (
@@ -83,5 +97,12 @@ const styles = StyleSheet.create({
   likeIconContainer: {
     position: "absolute",
     top: 8,
+  },
+  image: {
+    flex: 1,
+    minHeight: 200,
+    marginVertical: 6,
+    width: "100%",
+    backgroundColor: "#0553",
   },
 });
