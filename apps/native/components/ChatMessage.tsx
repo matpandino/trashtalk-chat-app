@@ -56,7 +56,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <Image
             style={styles.image}
             source={item.attachment}
-            placeholder={{ blurhash }}
             contentFit="scale-down"
             transition={1000}
           />

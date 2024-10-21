@@ -91,7 +91,6 @@ export const ChatTextInput: React.FC<ChatTextInputProps> = ({
           <Image
             style={[styles.image, { height: 32, width: 32 }]}
             source={value?.image}
-            placeholder={{ blurhash }}
             contentFit="scale-down"
             transition={1000}
           />
