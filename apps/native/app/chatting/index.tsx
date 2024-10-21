@@ -8,6 +8,7 @@ import { ChatListItem } from "../../components/ChatListItem";
 import { Appbar } from "react-native-paper";
 import { useUserStore } from "../../utils/providers/user-store-provider";
 import { Separator } from "../../components/Separator";
+import { appTheme } from "../../utils/theme";
 
 export default function Page() {
   const { clearUser } = useUserStore((state) => state);
@@ -29,7 +30,7 @@ export default function Page() {
         options={{
           title: "TrashTalk",
           headerRight: () => (
-            <Appbar.Action icon="logout" onPress={handleLogout} />
+            <Appbar.Action icon="logout" color={appTheme.colors.red} onPress={handleLogout} />
           ),
         }}
       />
