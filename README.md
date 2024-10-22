@@ -16,7 +16,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 
 *Mobile App*
 - **Componentization**: Some components on the App still need to be refactored for better reusability.
-- **Websocket**: Websocket connection can be improved. Something like auto reconnection can be added. I've noticed possible bugs with the websocket instantiation.
+- **Websocket**: Websocket connection can be improved. Features like auto reconnection can be added.
 - **Storybook**: My intent was to add storybook + unit test when neeeded
 
 *API*
