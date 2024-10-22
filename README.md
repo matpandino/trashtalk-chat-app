@@ -12,7 +12,7 @@ Due to limited time, I had to cut some shortcuts that impacted code quality. Her
 *Overall*
 - **GIT**: To save time I started comitting to the main branch at some point of the project. This is not a good practice and should not be tolerated in serious projects. Usually I create a PR for each chore/feature/fix with a description of the change
 - **.env Support**: The project currently lacks full support for environment variables using a `.env` file.
-- **TRPC**: I've noticed middle project that if I used trpc to integrate api/frontend it would probably speed the procces of building this challenge
+- **TRPC**: I've noticed middle project that if I used trpc to integrate api/frontend it would probably speed the proccess of building this challenge
 - **Typescript Integration**: TypeScript Integration: When the Prisma generate command is executed, it automatically exports all Prisma types. This allows the frontend to directly import the types from the backend repository, adding robustness and consistency to TypeScript support
 
 *Mobile App*
