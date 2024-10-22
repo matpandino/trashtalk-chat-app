@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Message, User } from "@/utils/stores/chatting-store";
+import { User, Message } from "@/utils/stores/chatting-store";
 import { DoubleTouchableOpacity } from "./DoubleTouchOpacity";
 import { useAppTheme } from "@/utils/theme";
 import { Icon, Text } from "react-native-paper";

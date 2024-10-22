@@ -10,9 +10,9 @@ import { useStore } from "zustand";
 import {
   type ChattingStore,
   createChattingStore,
-} from "../stores/chatting-store";
+} from "@/stores/chatting-store";
 import { UserStoreContext, useUserStore } from "./user-store-provider";
-import { closeWebSocket } from "../socket";
+import { closeWebSocket } from "@/utils/socket";
 
 export type ChattingStoreApi = ReturnType<typeof createChattingStore>;
 

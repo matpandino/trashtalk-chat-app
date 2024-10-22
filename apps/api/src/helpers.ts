@@ -137,6 +137,7 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
             likes: {
                 select: {
                     id: true,
+                    messageId: true,
                     userId: true,
                 }
             },

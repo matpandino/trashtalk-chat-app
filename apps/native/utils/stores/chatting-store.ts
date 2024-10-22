@@ -1,31 +1,18 @@
 import { createStore } from 'zustand'
 import { connectWebSocket, sendSocketMessage } from '@/utils/socket';
-import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '@/api/types';
+import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '@/api/src/types';
+import { ChatRoom, User as PrismaUser, Message as PrismaMessage, Like } from '@/api/prisma/prisma-types'
 
-export interface User {
-  id: string;
-  name: string;
+export interface User extends PrismaUser {
   roomId?: string | null;
   online?: boolean;
 }
 
-interface Like {
-  id: string;
-  userId: string;
+export interface Message extends PrismaMessage {
+  likes: Like[];
 }
 
-export interface Message {
-  id: string;
-  data: string;
-  sentById: string | null;
-  attachment: string | null;
-  likes: Like[]
-  createdAt: Date;
-}
-
-interface Room {
-  id: string;
-  users: User[];
+interface Room extends ChatRoom {
   messages: Message[];
 }
 
@@ -113,9 +100,9 @@ export const createChattingStore = (
                     return {
                       ...room,
                       messages: [...room?.messages, serverEvent.message]
-                    };
+                    } as Room;
                   }
-                  return room;
+                  return room as Room;
                 });
                 return { ...state, rooms: updatedRooms };
               } else {
@@ -127,7 +114,7 @@ export const createChattingStore = (
                       {
                         id: serverEvent.message.roomId,
                         messages: [serverEvent.message],
-                      }
+                      } as Room
                     ]
                 };
               }
@@ -155,7 +142,7 @@ export const createChattingStore = (
                         }
                         return message;
                       })
-                    }
+                    } as Room
                   }
                   return room;
                 })]
@@ -166,13 +153,13 @@ export const createChattingStore = (
             set(state => {
               const newRoomUser = serverEvent.room.users.find(u => u.id !== token);
               const newUsers = state.users.map(u => {
-                if (newRoomUser?.id === u.id) return { ...u, roomId: serverEvent.room.id };
+                if (newRoomUser?.id === u.id) return { ...u, roomId: serverEvent.room.id } as User;
                 return u
               });
               return {
                 ...state,
                 users: newUsers,
-                rooms: [serverEvent.room, ...state.rooms]
+                rooms: [serverEvent.room as Room, ...state.rooms]
               }
             })
             break;

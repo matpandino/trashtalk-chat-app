@@ -2,17 +2,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStore } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-interface User {
+interface CurrentUser {
   id: string;
   name: string;
 }
 
 interface UserStoreState {
-  user: User | null;
+  user: CurrentUser | null;
 }
 
 interface UserStoreActions {
-  setUser: (user: User) => void;
+  setUser: (user: CurrentUser) => void;
   clearUser: () => void;
 }
 

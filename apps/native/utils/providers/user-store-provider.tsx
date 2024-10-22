@@ -1,7 +1,7 @@
 import { type ReactNode, createContext, useRef, useContext } from 'react'
 import { useStore } from 'zustand'
 
-import { type UserStore, createUserStore } from '../stores/user-store'
+import { type UserStore, createUserStore } from '@/stores/user-store'
 
 export type UserStoreApi = ReturnType<typeof createUserStore>
 

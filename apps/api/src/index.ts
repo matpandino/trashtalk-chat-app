@@ -123,7 +123,7 @@ server.register(async function (server) {
                   roomId: room.id,
                   sentById: user.id,
                 },
-                include: { room: true, sentBy: true }
+                include: { room: true, sentBy: true, likes: true }
               })
 
               const roomSockets: WebSocket[] = usersSockets.filter(

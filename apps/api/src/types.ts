@@ -1,5 +1,5 @@
 import { WebSocket } from "@fastify/websocket";
-import { Message, User } from '@prisma/client';
+import { Like, Message as PrismaMessage, User } from '@prisma/client';
 
 // Client to server events
 export enum ClientEventType {
@@ -27,6 +27,10 @@ export enum EventType {
     MESSAGE = 'message',
     UPDATE_MESSAGE = 'update_message',
     NEW_ROOM = 'new_room',
+}
+
+interface Message extends PrismaMessage {
+    likes: Like[];
 }
 
 export interface NewRoomEvent {

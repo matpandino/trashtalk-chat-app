@@ -8,7 +8,7 @@
       "@/providers/*": ["./utils/providers/*"],
       "@/stores/*": ["./utils/stores/*"],
       "@/utils/*": ["./utils/*"],
-      "@/api/*": ["./../api/src/*"]
+      "@/api/*": ["./../api/*"],
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
