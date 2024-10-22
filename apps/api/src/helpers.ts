@@ -79,11 +79,11 @@ export const getAndNotifyUsersList = async ({ userId, usersSockets, notifySocket
             const roomUsers = room.users.map(u => u.id);
             return roomUsers.includes(u.id) && roomUsers.includes(userId)
         })
-
+        const isOnline = usersSockets.filter(us => us.userId === u.id).map(us => us.sockets).flat().length > 0;
         return {
             ...u,
             roomId: roomWithUser?.id || null,
-            online: usersSockets.filter(us => us.userId === u.id).length > 0
+            online: isOnline,
         }
     }).sort((a, b) => {
         return (b.online ? 1 : 0) - (a.online ? 1 : 0);
@@ -148,7 +148,7 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
     const likedByCurrentUser = message.likes.filter(like => like.userId === currentUserId);
     if (likedByCurrentUser.length) {
         await prisma.like.deleteMany({
-            where:{
+            where: {
                 id: {
                     in: likedByCurrentUser.map(like => like.id)
                 }

@@ -11,6 +11,7 @@ import { UserAvatarStatus } from "@/components/UserAvatarStatus";
 import { Container } from "@/components/Container";
 import { ChatTextInput } from "@/components/ChatTextInput";
 import { ChatMessage } from "@/components/ChatMessage";
+import { ConnectionLostHeader } from "@/components/ConnectionLostHeader";
 
 const schema = z.object({
   message: z.object({
@@ -23,7 +24,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function Page() {
   const { roomUserId, roomId } = useLocalSearchParams();
-  const { rooms, users, sendMessage, likeToggle } = useChattingStore(
+  const { rooms, users, sendMessage, likeToggle, status } = useChattingStore(
     (state) => state
   );
   const { user: currentUser } = useUserStore((state) => state);
@@ -62,13 +63,16 @@ export default function Page() {
     <Container>
       <Stack.Screen
         options={{
-          headerTitle: () => (
-            <UserAvatarStatus
-              centralize
-              isOnline={!!roomUser?.online}
-              title={roomUser?.name || ""}
-            />
-          ),
+          headerTitle: () =>
+            status == "offline" ? (
+              <ConnectionLostHeader />
+            ) : (
+              <UserAvatarStatus
+                centralize
+                isOnline={!!roomUser?.online}
+                title={roomUser?.name || ""}
+              />
+            ),
         }}
       />
       <FlatList

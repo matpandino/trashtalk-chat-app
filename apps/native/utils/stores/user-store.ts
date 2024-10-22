@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStore } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { closeWebSocket } from '../socket';
 
 interface CurrentUser {
   id: string;
@@ -29,7 +30,10 @@ export const createUserStore = (
     persist(
       (set) => ({
         ...initState,
-        clearUser: () => set({ user: null }),
+        clearUser: () => {
+          closeWebSocket?.()
+          set({ user: null })
+        },
         setUser: (user) => set({ user }),
       }),
       {

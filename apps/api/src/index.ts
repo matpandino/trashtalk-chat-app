@@ -91,7 +91,7 @@ server.register(async function (server) {
       const { user, newUserSockets } = await validateNewSocketConnection({ req, socket, usersSockets });
       usersSockets = newUserSockets;
 
-      getAndNotifyUsersList({ userId: user.id, notifySocket: socket, usersSockets });
+      getAndNotifyUsersList({ userId: user.id, notifySocket: socket, usersSockets: newUserSockets });
 
       socket.on('message', async message => {
         try {
@@ -152,6 +152,7 @@ server.register(async function (server) {
           const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
           sendEvent({ event, sockets: allSockets });
           const newUserSockets = removeUserSocket({ socket, userId: user.id, usersSockets })
+          console.log("newUserSockets", newUserSockets)
           usersSockets = newUserSockets;
         }
       });

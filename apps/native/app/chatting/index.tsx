@@ -1,4 +1,4 @@
-import React from "react";  
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import { FlatList } from "react-native";
 import { useRouter, Stack } from "expo-router";
@@ -10,7 +10,8 @@ import { useUserStore } from "@/utils/providers/user-store-provider";
 import { Separator } from "@/components/Separator";
 import { appTheme } from "@/utils/theme";
 import apiClient from "@/utils/axios";
-import { darken, transparentize } from "polished";
+import { ConnectionLostHeader } from "@/components/ConnectionLostHeader";
+import { closeWebSocket } from "@/utils/socket";
 
 export default function Page() {
   const { clearUser, user: currentUser } = useUserStore((state) => state);
@@ -39,6 +40,7 @@ export default function Page() {
 
   const handleLogout = () => {
     clearUser();
+    closeWebSocket();
     router.navigate("/");
   };
 
@@ -46,25 +48,14 @@ export default function Page() {
     <Container>
       <Stack.Screen
         options={{
-          headerLeft: () => (
-            <Chip
-              selectedColor={
-                status === "offline"
-                  ? appTheme.colors.white
-                  : transparentize(0.2, appTheme.colors.white)
-              }
-              style={{
-                backgroundColor:
-                  status === "offline"
-                    ? appTheme.colors.red
-                    : appTheme.colors.strongGreen,
-              }}
-              compact
-            >
-              {status === "offline" ? "offline" : "online"}
-            </Chip>
-          ),
-          title: "TrashTalk",
+          headerTitle: () =>
+            status === "offline" ? (
+              <ConnectionLostHeader />
+            ) : (
+              <Text variant="titleLarge" style={{ fontWeight: 600 }}>
+                TrashTalk
+              </Text>
+            ),
           headerRight: () => (
             <Appbar.Action
               icon="logout"

@@ -2,7 +2,7 @@ import { ServerEvent } from "../../api/src/types";
 
 let ws: any = null;
 
-export const connectWebSocket = (token: string, statusChange: (newStatus:'online' | 'offline') => void, onMessage: (event: ServerEvent) => void) => {
+export const connectWebSocket = (token: string, statusChange: (newStatus: 'online' | 'offline') => void, onMessage: (event: ServerEvent) => void) => {
     ws = new WebSocket('ws://localhost:8080/chat?token=' + token);
 
     ws.onopen = () => {
@@ -33,10 +33,9 @@ export const connectWebSocket = (token: string, statusChange: (newStatus:'online
 };
 
 export const closeWebSocket = () => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws?.close?.();
-        console.log('WebSocket connection closed');
-    }
+    ws?.close?.();
+    ws = null;
+    console.log('WebSocket connection closed');
 };
 
 export const sendSocketMessage = (message: any) => {
