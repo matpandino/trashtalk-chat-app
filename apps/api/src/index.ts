@@ -90,7 +90,7 @@ server.register(async function (server) {
     try {
       const { user, newUserSockets } = await validateNewSocketConnection({ req, socket, usersSockets });
       usersSockets = newUserSockets;
-
+ 
       getAndNotifyUsersList({ userId: user.id, notifySocket: socket, usersSockets: newUserSockets });
 
       socket.on('message', async message => {

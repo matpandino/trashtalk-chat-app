@@ -1,8 +1,9 @@
 import { ServerEvent } from "../../api/src/types";
+import { Toast } from 'toastify-react-native';
 
 let ws: any = null;
 
-export const connectWebSocket = (token: string, statusChange: (newStatus: 'online' | 'offline') => void, onMessage: (event: ServerEvent) => void) => {
+export const connectWebSocket = (token: string, statusChange: (newStatus: 'online' | 'offline') => void, onError: (error?: any) => void, onMessage: (event: ServerEvent) => void) => {
     ws = new WebSocket('ws://localhost:8080/chat?token=' + token);
 
     ws.onopen = () => {
@@ -17,13 +18,16 @@ export const connectWebSocket = (token: string, statusChange: (newStatus: 'onlin
                 throw new Error(data.error);
             }
             onMessage(data);
-        } catch (error) {
-            console.error("error", error)
+        } catch (error: any) {
+            const errorMessage = error?.message || error;
+            onError(errorMessage)
         }
     };
 
     ws.onerror = (error: any) => {
-        // console.error('WebSocket error:', error);
+        const errorMessage = error?.message || error;
+        onError(errorMessage)
+        console.error('WebSocket error:', error);
     };
 
     ws.onclose = () => {
@@ -42,6 +46,7 @@ export const sendSocketMessage = (message: any) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(message));
     } else {
+        Toast.error('Error: Connection not established', 'top');
         console.error('WebSocket is not connected');
     }
 };

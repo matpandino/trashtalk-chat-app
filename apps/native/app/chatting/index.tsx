@@ -5,13 +5,14 @@ import { useRouter, Stack } from "expo-router";
 import { useChattingStore } from "@/utils/providers/chatting-store-provider";
 import { Container } from "@/components/Container";
 import { ChatListItem } from "@/components/ChatListItem";
-import { Appbar, Chip, Text } from "react-native-paper";
+import { Appbar, Text } from "react-native-paper";
 import { useUserStore } from "@/utils/providers/user-store-provider";
 import { Separator } from "@/components/Separator";
 import { appTheme } from "@/utils/theme";
 import apiClient from "@/utils/axios";
 import { ConnectionLostHeader } from "@/components/ConnectionLostHeader";
 import { closeWebSocket } from "@/utils/socket";
+import { Toast } from "toastify-react-native";
 
 export default function Page() {
   const { clearUser, user: currentUser } = useUserStore((state) => state);
@@ -33,7 +34,10 @@ export default function Page() {
       router.navigate(
         `/chatting/room/${userId}${room ? `?roomId=${room?.id}` : ""}`
       );
-    } catch (error) {
+    } catch (error: any) {
+      if (typeof error?.message === "string") {
+        Toast.error("Error: " + error?.message, "top");
+      }
       console.error(JSON.stringify(error, null, 2));
     }
   };
