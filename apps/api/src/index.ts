@@ -104,7 +104,7 @@ server.register(async function (server) {
               break
             case ClientEventType.NEW_MESSAGE:
               const messageEvent = messageParsed as ClientEventSentMessage;
-              console.log("Log: messageEvent request: ", messageEvent)
+              console.log("LOG: messageEvent request: ", messageEvent)
               if (!messageEvent?.roomId) return socket.send(JSON.stringify({ error: 'Invalid roomId' }));
               let room = await getChatRoomById({ chatRoomId: messageEvent.roomId });
               if (!room) {
@@ -152,7 +152,6 @@ server.register(async function (server) {
           const event: UserOfflineEvent = { event: EventType.USER_OFFLINE, user: { id: user.id, name: user.name } };
           sendEvent({ event, sockets: allSockets });
           const newUserSockets = removeUserSocket({ socket, userId: user.id, usersSockets })
-          console.log("newUserSockets", newUserSockets)
           usersSockets = newUserSockets;
         }
       });

@@ -70,7 +70,6 @@ export const createChattingStore = (
         // HANDLE SOCKET ERRORS
         (error) => {
           const errorMessage = typeof error === 'string' ? error : undefined;
-          console.error(JSON.stringify(error, null, 2));
           if (errorMessage) {
             const maxLength = 100;
             const errorFormatted = ((errorMessage).length > maxLength) ?
