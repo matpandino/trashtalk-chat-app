@@ -3,6 +3,7 @@
         "Appbar",
         "fastify",
         "hookform",
-        "tanstack"
+        "tanstack",
+        "zustand"
     ]
 }
