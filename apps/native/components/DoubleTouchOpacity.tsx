@@ -17,6 +17,7 @@ export const DoubleTouchableOpacity: React.FC<Props> = ({
   onPress,
   onDoublePress,
   doublePressDelay = DEFAULT_DOUBLE_PRESS_DELAY,
+  ...restProps
 }) => {
   const [clickCount, setClickCount] = useState(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -45,7 +46,7 @@ export const DoubleTouchableOpacity: React.FC<Props> = ({
   };
 
   return (
-    <TouchableOpacity activeOpacity={1} onPress={handlePress}>
+    <TouchableOpacity activeOpacity={1} onPress={handlePress} {...restProps}>
       {children}
     </TouchableOpacity>
   );

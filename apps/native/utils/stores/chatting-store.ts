@@ -1,6 +1,6 @@
 import { createStore } from 'zustand'
 import { connectWebSocket, sendSocketMessage } from '@/utils/socket';
-import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage } from '@/api/src/types';
+import { EventType, ClientEventSentMessage, ClientEventType, ClientEventLikeToggleMessage, ClientEventDeleteMessage } from '@/api/src/types';
 import { ChatRoom, User as PrismaUser, Message as PrismaMessage, Like } from '@/api/prisma/prisma-types'
 import { Toast } from 'toastify-react-native';
 
@@ -25,6 +25,7 @@ interface ChattingStoreState {
 
 interface ChattingStoreActions {
   likeToggle: (likeToggleDTO: { messageId: string }) => void,
+  deleteMessage: (deleteMessageDTO: { messageId: string }) => void,
   sendMessage: (newMessageDTO: { roomId: string; message: string, image?: string }) => void;
   initializeSocket: (token: string) => void;
   updateRoom: (newRoomData: Room) => void;
@@ -43,6 +44,9 @@ export const createChattingStore = (
 ) => {
   return createStore<ChattingStore>()((set) => ({
     ...initState,
+    deleteMessage: ({ messageId }) => {
+      sendSocketMessage({ event: ClientEventType.DELETE_MESSAGE, messageId } as ClientEventDeleteMessage);
+    },
     sendMessage: (newMessageDTO) => {
       const { roomId, message, image } = newMessageDTO;
       sendSocketMessage({ roomId, event: ClientEventType.NEW_MESSAGE, data: message, image } as ClientEventSentMessage);

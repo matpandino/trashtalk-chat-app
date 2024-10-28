@@ -122,6 +122,7 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
             roomId: true,
             sentById: true,
             attachment: true,
+            deleted: true,
             data: true,
             createdAt: true,
             room: {
@@ -190,4 +191,85 @@ export const handleLikeToggleEvent = async ({ messageId, usersSockets, currentUs
         const event: UpdateMessageEvent = { event: EventType.UPDATE_MESSAGE, message: updatedMessage, roomId: updatedMessage.room.id };
         sendEvent({ event, sockets: notifySockets });
     }
+}
+
+export const handleDeleteMessageEvent = async ({ messageId, usersSockets, currentUserId }: { messageId: string, usersSockets: UserSockets[], currentUserId: string }) => {
+    const message = await prisma.message.findUniqueOrThrow({
+        where: { id: messageId },
+        select: {
+            id: true,
+            roomId: true,
+            sentById: true,
+            attachment: true,
+            data: true,
+            deleted: true,
+            createdAt: true,
+            room: {
+                select: {
+                    id: true,
+                    users: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            },
+            likes: {
+                select: {
+                    id: true,
+                    messageId: true,
+                    userId: true,
+                }
+            },
+            sentBy: true
+        }
+    });
+
+    if(!message?.id){
+        throw new Error("Couldn't find message")
+    }
+
+    if(message.sentById !== currentUserId){
+        throw new Error("You can't delete a message that wasn't sent by you")
+    }
+
+    const updatedMessage = await prisma.message.update({
+        where: { id: messageId },
+        data: {
+            deleted: true,
+            data: "",
+            attachment: null,
+        },
+        select: {
+            id: true,
+            roomId: true,
+            sentById: true,
+            attachment: true,
+            data: true,
+            deleted: true,
+            createdAt: true,
+            room: {
+                select: {
+                    id: true,
+                    users: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            },
+            likes: {
+                select: {
+                    id: true,
+                    messageId: true,
+                    userId: true,
+                }
+            },
+            sentBy: true
+        }
+    })
+
+    const notifySockets = usersSockets.filter(socketUser => updatedMessage.room.users.map(u => u.id).includes(socketUser.userId)).flatMap(us => us.sockets);
+    const event: UpdateMessageEvent = { event: EventType.UPDATE_MESSAGE, message: updatedMessage, roomId: updatedMessage.room.id };
+    sendEvent({ event, sockets: notifySockets });
 }   

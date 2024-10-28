@@ -1,8 +1,8 @@
 import fastify from 'fastify';
 import websocketPlugin, { WebSocket } from '@fastify/websocket';
-import { ClientEventLikeToggleMessage, ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserOfflineEvent, UserSockets } from './types'
+import { ClientEventDeleteMessage, ClientEventLikeToggleMessage, ClientEventSentMessage, ClientEventType, EventType, MessageEvent, NewRoomEvent, UserOfflineEvent, UserSockets } from './types'
 import { PrismaClient } from '@prisma/client';
-import { getAndNotifyUsersList, getChatRoomById, handleLikeToggleEvent, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
+import { getAndNotifyUsersList, getChatRoomById, handleDeleteMessageEvent, handleLikeToggleEvent, removeUserSocket, sendEvent, validateNewSocketConnection } from './helpers';
 
 const port = 8080;
 let usersSockets: UserSockets[] = []
@@ -97,6 +97,11 @@ server.register(async function (server) {
         try {
           const messageParsed = JSON.parse(message.toString())
           switch (messageParsed?.event) {
+            case ClientEventType.DELETE_MESSAGE:
+              const deleteMessageEvent = messageParsed as ClientEventDeleteMessage;
+              handleDeleteMessageEvent({ messageId: deleteMessageEvent.messageId, usersSockets, currentUserId: user.id });
+              console.log("LOG: deleteMessageEvent", JSON.stringify(deleteMessageEvent))
+              break
             case ClientEventType.LIKE_TOGGLE:
               const likeToggleEvent = messageParsed as ClientEventLikeToggleMessage;
               console.log("LOG: likeToggleEvent", JSON.stringify(likeToggleEvent))

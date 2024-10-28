@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import React, { useMemo } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useChattingStore } from "@/utils/providers/chatting-store-provider";
@@ -24,9 +24,8 @@ type FormData = z.infer<typeof schema>;
 
 export default function Page() {
   const { roomUserId, roomId } = useLocalSearchParams();
-  const { rooms, users, sendMessage, likeToggle, status } = useChattingStore(
-    (state) => state
-  );
+  const { rooms, users, sendMessage, likeToggle, deleteMessage, status } =
+    useChattingStore((state) => state);
   const { user: currentUser } = useUserStore((state) => state);
 
   const roomUser = users.find((u) => u.id === roomUserId);
@@ -59,6 +58,33 @@ export default function Page() {
     likeToggle({ messageId });
   };
 
+  const handleLongPress = ({
+    messageId,
+    sentById,
+  }: {
+    messageId: string;
+    sentById: string;
+  }) => {
+    if (currentUser?.id !== sentById) return;
+    Alert.alert(
+      "Delete Message",
+      "Do want to delete this message?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deleteMessage({ messageId });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <Container>
       <Stack.Screen
@@ -86,7 +112,11 @@ export default function Page() {
             item={item}
             index={index}
             prevMessage={messages?.[index - 1]}
-            handleMessageLikeToggle={handleMessageLikeToggle}
+            handleMessageLikeToggle={() => handleMessageLikeToggle(item.id)}
+            handleLongPress={() =>
+              item.sentById &&
+              handleLongPress({ messageId: item.id, sentById: item.sentById })
+            }
           />
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}

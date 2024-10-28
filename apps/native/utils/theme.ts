@@ -1,4 +1,4 @@
-import { darken } from "polished";
+import { darken, transparentize } from "polished";
 import { MD3DarkTheme, useTheme } from "react-native-paper";
 import { white } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import { MD3Colors } from "react-native-paper/lib/typescript/types";
@@ -15,6 +15,7 @@ const defaultColors: MD3Colors = {
 
 const customColors = {
     white: "#ffff",
+    whiteTransparent: transparentize(0.4, '#ffff'),
     red: "#f25757",
     strongGreen: '#3f7a35',
     green: "#85f781",
