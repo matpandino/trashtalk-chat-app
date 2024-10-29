@@ -11,8 +11,8 @@ datasource db {
 }
 
 generator types {
-    provider = "prisma-types-export"
-    output   = "./prisma-types"
+  provider = "prisma-types-export"
+  output   = "./prisma-types"
 }
 
 model User {
@@ -32,6 +32,7 @@ model ChatRoom {
 model Message {
   id         String   @id @default(cuid())
   data       String
+  deleted    Boolean  @default(false)
   attachment String?
   createdAt  DateTime @default(now())
   roomId     String

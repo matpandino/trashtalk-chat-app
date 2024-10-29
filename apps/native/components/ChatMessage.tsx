@@ -12,7 +12,8 @@ interface ChatMessageProps {
   index: number;
   prevMessage?: Message;
   currentUser: User | null;
-  handleMessageLikeToggle: (messageId: string) => void;
+  handleMessageLikeToggle: () => void;
+  handleLongPress: () => void;
 }
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({
@@ -20,6 +21,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   prevMessage,
   currentUser,
   handleMessageLikeToggle,
+  handleLongPress,
 }) => {
   const isSentByCurrentUser = item.sentById === currentUser?.id;
   const spacePrevMessage =
@@ -29,7 +31,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <DoubleTouchableOpacity
-      onDoublePress={() => handleMessageLikeToggle(item.id)}
+      onDoublePress={() => handleMessageLikeToggle()}
+      onLongPress={() => handleLongPress()}
       key={item.id + item?.likes?.length || 0}
     >
       <View
@@ -58,7 +61,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           />
         )}
 
-        <Text>{item.data}</Text>
+        {item.deleted ? (
+          <Text
+            style={{
+              ...styles.deletedText,
+              color: appTheme.colors.whiteTransparent,
+            }}
+          >
+            Deleted message
+          </Text>
+        ) : (
+          <Text>{item.data}</Text>
+        )}
         {item.likes?.map((like, index) => (
           <View
             key={like.id}
@@ -99,5 +113,8 @@ const styles = StyleSheet.create({
     minHeight: 200,
     marginVertical: 6,
     minWidth: "70%",
+  },
+  deletedText: {
+    fontStyle: "italic",
   },
 });

@@ -5,10 +5,16 @@ import { Like, Message as PrismaMessage, User } from '@prisma/client';
 export enum ClientEventType {
     NEW_MESSAGE = 'new_message',
     LIKE_TOGGLE = 'like_toggle',
+    DELETE_MESSAGE = 'delete_message',
 }
 
 export interface ClientEventLikeToggleMessage {
     event: ClientEventType.LIKE_TOGGLE;
+    messageId: string;
+}
+
+export interface ClientEventDeleteMessage {
+    event: ClientEventType.DELETE_MESSAGE;
     messageId: string;
 }
 
