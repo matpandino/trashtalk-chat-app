@@ -1,4 +1,4 @@
-# TrashLab Mobile Challenge
+# TrashTalk
 
 Video demonstration: [https://youtu.be/SmTXhhTYMT4](https://youtu.be/oiEtJt-uRSU)
 <p align="center">
